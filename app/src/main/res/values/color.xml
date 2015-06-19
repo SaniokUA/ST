@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="my_toolbar_color" type="color">#7c4dff</item>
+    <item name="my_toolbar_dark_color" type="color">#673ab7</item>
+    <item name="accent" type="color">#00bcd4</item>
+    <item name="my_toolbar_light_color" type="color">#ffeb3b</item>
+    <item name="grey" type="color">#b2141414</item>
+    <item name="light_grey" type="color">#b2494949</item>
+
+</resources>
