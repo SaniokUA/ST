@@ -20,6 +20,7 @@ import android.widget.TimePicker;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import azaza.myapplication.DataBase.DB;
 import azaza.myapplication.DataBase.Note;
@@ -30,7 +31,7 @@ import azaza.myapplication.Reciver.MyAlarmReceiver;
 /**
  * Created by Alex on 05.06.2015.
  */
-public class CallActivity extends Activity{
+public class CallActivity extends Activity {
 
     LinearLayout setAlarmwindow;
     Switch switchAlarmWindow;
@@ -43,12 +44,14 @@ public class CallActivity extends Activity{
     ArrayList<String> results;
 
     int year, month, day, hour, minute;
+    static int yearSet, monthSet, daySet, hourSet, minuteSet;
+    public static int ID=1;
+
 
 
     DatePicker datePicker;
     Calendar calendar;
-    long time;
-
+    long time, setTimeMili;
 
 
     @Override
@@ -57,12 +60,11 @@ public class CallActivity extends Activity{
         setContentView(R.layout.activity_call);
 
 
-
         speak = (ImageButton) findViewById(R.id.button);
         phone = (TextView) findViewById(R.id.Phone);
         date = (TextView) findViewById(R.id.Date);
         comment = (EditText) findViewById(R.id.comment);
-        setAlarmwindow  = (LinearLayout) findViewById(R.id.SetAlarmWindow);
+        setAlarmwindow = (LinearLayout) findViewById(R.id.SetAlarmWindow);
         switchAlarmWindow = (Switch) findViewById(R.id.switchAlarm);
 
         setDate = (Button) findViewById(R.id.setDate);
@@ -94,16 +96,16 @@ public class CallActivity extends Activity{
             results = savedInstanceState.getStringArrayList("results");
 
             if (results != null)
-               comment.setText(results.toString());
+                comment.setText(results.toString());
 
         }
 
 
     }
 
-    public void onSave(View v){
+    public void onSave(View v) {
 
-        Note note = new Note(1, "Title111", "Desc111", time, false, true);
+        Note note = new Note(ID++, PhoneData.PHONE , comment.getText().toString(), getTimeMili(yearSet, monthSet, daySet, hourSet, minuteSet), false, true);
         setAlarm(note);
 
 
@@ -116,9 +118,10 @@ public class CallActivity extends Activity{
     }
 
 
-    public void onCLose(View v){
+    public void onCLose(View v) {
         this.finish();
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1010 && resultCode == RESULT_OK) {
@@ -136,10 +139,10 @@ public class CallActivity extends Activity{
         outState.putStringArrayList("results", results);
     }
 
-    public void onSwitch(View v){
-        if(switchAlarmWindow.isChecked()){
+    public void onSwitch(View v) {
+        if (switchAlarmWindow.isChecked()) {
             setAlarmwindow.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             setAlarmwindow.setVisibility(View.GONE);
         }
     }
@@ -147,13 +150,16 @@ public class CallActivity extends Activity{
     public void setDate(View view) {
         showDialog(1);
     }
-    public void setTime(View view) { showDialog(2); }
+
+    public void setTime(View view) {
+        showDialog(2);
+    }
 
     @Override
     protected Dialog onCreateDialog(int id) {
         // TODO Auto-generated method stub
         calendar = Calendar.getInstance();
-        getTimeMili(calendar);
+
         if (id == 1) {
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH);
@@ -162,22 +168,28 @@ public class CallActivity extends Activity{
 
         }
         if (id == 2) {
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-            return new TimePickerDialog(this, myTimeListener, hour, minute,  DateFormat.is24HourFormat(this));
+            hour = calendar.get(Calendar.HOUR_OF_DAY);
+            minute = calendar.get(Calendar.MINUTE);
+            return new TimePickerDialog(this, myTimeListener, hour, minute, DateFormat.is24HourFormat(this));
         }
+
         return null;
     }
 
     private DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker arg0, int arg1, int arg2, int arg3) {
-            showDate(arg1, arg2+1, arg3);
+            yearSet = arg1;
+            monthSet = arg2;
+            daySet = arg3;
+            showDate(arg1, arg2 + 1, arg3);
         }
     };
     private TimePickerDialog.OnTimeSetListener myTimeListener = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            hourSet = hourOfDay;
+            minuteSet = minute;
             showTime(hourOfDay, minute);
         }
     };
@@ -190,20 +202,18 @@ public class CallActivity extends Activity{
     }
 
     private void showTime(int hour, int minute) {
-        editTime.setText(new StringBuilder().append(hour).append(":")
-                .append(minute));
+        editTime.setText(new StringBuilder().append(hour).append(":").append(minute));
     }
 
     private void setAlarm(Note note) {
         MyAlarmManager.setAlarm(this, MyAlarmReceiver.class, note);
     }
 
-    public long getTimeMili(Calendar calendar){
+    public long getTimeMili(int year, int month, int day, int hour, int minute) {
 
-        //Calendar calendar1 = new GregorianCalendar( year, month, day, hour, minute );
+        Calendar calendar1 = new GregorianCalendar(year, month, day, hour, minute);
+        time = calendar1.getTimeInMillis() / 1000;
 
-        time = calendar.getTimeInMillis() / 1000;
-
-         return time;
+        return time;
     }
 }

@@ -12,8 +12,8 @@ import android.os.IBinder;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import azaza.myapplication.AlarmActivity;
 import azaza.myapplication.DataBase.Note;
-import azaza.myapplication.MainActivity;
 import azaza.myapplication.R;
 
 public class MyAlarmService extends Service {
@@ -53,15 +53,14 @@ public class MyAlarmService extends Service {
 
         mManager = (NotificationManager) this.getApplicationContext().
                 getSystemService(this.getApplicationContext().NOTIFICATION_SERVICE);
-        Intent mIntent = new Intent(this.getApplicationContext(), MainActivity.class);
+        Intent mIntent = new Intent(this.getApplicationContext(), AlarmActivity.class);
 
         mIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        PendingIntent pendingNotificationIntent = PendingIntent
-                .getActivity(this.getApplicationContext(),0, mIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingNotificationIntent = PendingIntent.getActivity(this.getApplicationContext(),0, mIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         Notification notification = new Notification.Builder(this.getApplicationContext())
                 .setContentTitle(title)
                 .setContentText(text)

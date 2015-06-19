@@ -22,7 +22,7 @@ public class MyAlarmReceiver extends BroadcastReceiver {
         service1.putExtra("id", id);
         service1.putExtra("time", time);
         service1.putExtra("title", title);
-        service1.putExtra("desc", text);
+        service1.putExtra("description", text);
 
         context.startService(service1);
 

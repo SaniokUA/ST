@@ -78,7 +78,7 @@ public class SpeechRecognitionHelper extends MainActivity {
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Голосовой поиск Inforino");	// текстовая подсказка пользователю
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);	// модель распознавания
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);	// количество резальтатов, которое мы хотим получить
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ru-RU");
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ua-UA");
 
         // стартуем активити и ждем от нее результата
         ownerActivity.startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
