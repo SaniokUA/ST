@@ -19,21 +19,23 @@ public class DB {
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_TYPE = "type";
     public static final String COLUMN_NUBMER = "number";
+    public static final String COLUMN_CONTACT = "contact";
     public static final String COLUMN_TXT = "txt";
     public static final String COLUMN_DATE = "date";
+    public static final String COLUMN_ALARMDATE = "alarmDate";
 
     private static final String DB_CREATE =
             "create table " + DB_TABLE + "(" +
                     COLUMN_ID + " integer primary key autoincrement, " +
                     COLUMN_TYPE + " text, " +
                     COLUMN_NUBMER + " text, " +
+                    COLUMN_CONTACT + " text, " +
                     COLUMN_DATE + " text, " +
-                    COLUMN_TXT + " text" +
+                    COLUMN_TXT + " text, " +
+                    COLUMN_ALARMDATE + " long" +
                     ");";
 
     private final Context mCtx;
-
-
     private DBHelper mDBHelper;
     private SQLiteDatabase mDB;
 
@@ -54,16 +56,18 @@ public class DB {
 
     // получить все данные из таблицы DB_TABLE
     public Cursor getAllData() {
-        return mDB.query(DB_TABLE, null, null, null, null, null, null);
+        return mDB.query(DB_TABLE, null, null, null, null, null, COLUMN_ID + " DESC");
     }
 
     // добавить запись в DB_TABLE
-    public void addRec(String myType, String number, String date, String text) {
+    public void addRec(String myType, String number, String contact, String date, String text, long alarmdate) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_TYPE, myType);
         cv.put(COLUMN_NUBMER, number);
+        cv.put(COLUMN_CONTACT, contact);
         cv.put(COLUMN_DATE, date);
         cv.put(COLUMN_TXT, text);
+        cv.put(COLUMN_ALARMDATE, alarmdate);
         mDB.insert(DB_TABLE, null, cv);
     }
 

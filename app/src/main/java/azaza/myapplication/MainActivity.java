@@ -12,6 +12,7 @@ import java.util.List;
 
 import azaza.myapplication.Adapter.ListItemAdapter;
 import azaza.myapplication.DataBase.DB;
+import azaza.myapplication.Libs.GetMiliDate;
 import azaza.myapplication.Model.ListItem;
 
 
@@ -20,6 +21,8 @@ public class MainActivity extends ActionBarActivity  {
     ListView listView;
     DB db = new DB(this);
     List<ListItem> data;
+
+    GetMiliDate getMiliDate = new GetMiliDate();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,28 +64,31 @@ public class MainActivity extends ActionBarActivity  {
         List<ListItem> list = new ArrayList<ListItem>();
         Cursor c = db.getAllData();
         if (c.getCount() == 0) {
-            list.add(get("0","551579", "13.13.2013", "Some Text"));
+            list.add(get("0","551579", "Test" , "13.13.2013", "Some Text", "1231"));
         } else {
 
             if (!c.moveToFirst()) {
             } else {
                 do {
-                    list.add(get(c.getString(c.getColumnIndex("type")),c.getString(c.getColumnIndex("number")),
-                            c.getString(c.getColumnIndex("date")), c.getString(c.getColumnIndex("txt"))));
+                    list.add(get(c.getString(c.getColumnIndex("type")), c.getString(c.getColumnIndex("contact")), c.getString(c.getColumnIndex("number")),
+                            c.getString(c.getColumnIndex("date")), c.getString(c.getColumnIndex("txt")), getMiliDate.millisToDate(c.getLong(c.getColumnIndex("alarmDate")))) );
                 } while (c.moveToNext());
             }
         }
         return list;
     }
 
-    private ListItem get(String type, String phone, String data, String text) {
-        return new ListItem(type, phone, data, text);
+    private ListItem get(String type, String contact,  String phone, String data, String text, String alarmSignal) {
+        return new ListItem(type, contact, phone, data, text, alarmSignal);
     }
+
 
     @Override
     protected void onStop() {
+        db.close();
         super.onStop();
         this.finish();
+
     }
 
     @Override

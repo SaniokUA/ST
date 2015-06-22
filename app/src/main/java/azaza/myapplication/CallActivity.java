@@ -35,7 +35,7 @@ public class CallActivity extends Activity {
 
     LinearLayout setAlarmwindow;
     Switch switchAlarmWindow;
-    TextView phone, date;
+    TextView phone, date, contact;
     ImageButton speak;
     Button setDate, setTime;
     EditText comment, editDate, editTime;
@@ -67,6 +67,8 @@ public class CallActivity extends Activity {
         setAlarmwindow = (LinearLayout) findViewById(R.id.SetAlarmWindow);
         switchAlarmWindow = (Switch) findViewById(R.id.switchAlarm);
 
+        contact = (TextView) findViewById(R.id.Contact);
+
         setDate = (Button) findViewById(R.id.setDate);
         setTime = (Button) findViewById(R.id.setTime);
 
@@ -76,6 +78,10 @@ public class CallActivity extends Activity {
 
         phone.setText(PhoneData.PHONE);
         date.setText(PhoneData.DATE);
+
+        if(PhoneData.CONTACT !="") {
+            contact.setText(PhoneData.CONTACT);
+        }
 
 
         speak.setOnClickListener(new View.OnClickListener() {
@@ -105,13 +111,16 @@ public class CallActivity extends Activity {
 
     public void onSave(View v) {
 
-        Note note = new Note(ID++, PhoneData.PHONE , comment.getText().toString(), getTimeMili(yearSet, monthSet, daySet, hourSet, minuteSet), false, true);
+        long timeMili = getTimeMili(yearSet, monthSet, daySet, hourSet, minuteSet);
+
+        Note note = new Note(ID++, PhoneData.PHONE, PhoneData.CONTACT, comment.getText().toString(), timeMili, false, true);
         setAlarm(note);
 
 
         db.open();
         text = (comment.getText().toString());
-        db.addRec(PhoneData.myTYPE, PhoneData.PHONE, PhoneData.DATE, text);
+        db.addRec(PhoneData.myTYPE, PhoneData.PHONE, PhoneData.CONTACT, PhoneData.DATE, text, timeMili);
+        db.close();
         this.finish();
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);

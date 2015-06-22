@@ -18,15 +18,18 @@
             android:layout_height="wrap_content"
             android:text="Phone"
             android:textSize="18dp"
-            android:id="@+id/textView4"
+            android:id="@+id/textPhone"
             android:paddingRight="20dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Date"
+            android:text="Contact"
             android:textSize="18dp"
-            android:id="@+id/textView5" />
+            android:id="@+id/textContact"
+           />
+
+
     </LinearLayout>
 
     <LinearLayout
@@ -39,16 +42,20 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Text"
+            android:text="Date"
             android:textSize="18dp"
-            android:id="@+id/taskHead"
+            android:id="@+id/textDate"
             android:paddingBottom="10dp"/>
+
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="New Text"
-            android:id="@+id/taskDesc" />
+            android:textSize="18dp"
+            android:paddingBottom="10dp"
+            android:id="@+id/textDesc" />
+
 
         <LinearLayout
             android:orientation="horizontal"
@@ -93,7 +100,15 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cancel"
+        android:text="Stop"
+        android:id="@+id/button3"
+        android:onClick="onStopSignal" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close"
+        android:onClick="onClose"
         android:id="@+id/button2"
         android:layout_gravity="center_horizontal" />
 </LinearLayout>

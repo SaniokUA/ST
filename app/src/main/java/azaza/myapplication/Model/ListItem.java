@@ -6,16 +6,20 @@ package azaza.myapplication.Model;
 public class ListItem {
 
     String type;
+    String contact;
     String number;
     String text;
     String date;
+    String alarmSignal;
 
-    public ListItem(String type, String number, String date, String text){
+    public ListItem(String type, String contact, String number, String date, String text, String alarmSignal) {
 
         this.type = type;
+        this.contact = contact;
         this.number = number;
         this.date = date;
         this.text = text;
+        this.alarmSignal = alarmSignal;
 
     }
 
@@ -49,6 +53,22 @@ public class ListItem {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getAlarmSignal() {
+        return alarmSignal;
+    }
+
+    public void setAlarmSignal(String alarmSignal) {
+         this.alarmSignal = alarmSignal;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
     }
 
 }

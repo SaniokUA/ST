@@ -20,6 +20,7 @@ public class MyAlarmService extends Service {
     private NotificationManager mManager;
     private String title;
     private String text;
+    private String contact;
     private long time;
 
     public MyAlarmService() {
@@ -50,17 +51,30 @@ public class MyAlarmService extends Service {
 
         title = intent.getStringExtra(Note.TITLE);
         text = intent.getStringExtra(Note.DESCRIPTION);
+        contact = intent.getStringExtra(Note.CONTACT);
+
+
 
         mManager = (NotificationManager) this.getApplicationContext().
                 getSystemService(this.getApplicationContext().NOTIFICATION_SERVICE);
         Intent mIntent = new Intent(this.getApplicationContext(), AlarmActivity.class);
 
+
+        mIntent.putExtra("id", id);
+        mIntent.putExtra("time", time);
+        mIntent.putExtra("contact", contact);
+        mIntent.putExtra("title", title);
+        mIntent.putExtra("description", text);
+
+        mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(mIntent);
+
         mIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        PendingIntent pendingNotificationIntent = PendingIntent.getActivity(this.getApplicationContext(),0, mIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingNotificationIntent = PendingIntent.getActivity(this.getApplicationContext(), 0, mIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Notification notification = new Notification.Builder(this.getApplicationContext())
                 .setContentTitle(title)
                 .setContentText(text)
@@ -68,6 +82,7 @@ public class MyAlarmService extends Service {
                 .setSound(alarmSound)
                 .setWhen(System.currentTimeMillis())
                 .setAutoCancel(true)
+                .setContentIntent(pendingNotificationIntent)
                 .getNotification();
 
         mManager.notify(id, notification);

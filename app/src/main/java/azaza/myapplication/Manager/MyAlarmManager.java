@@ -43,6 +43,7 @@ public class MyAlarmManager {
     public static void setAlarm(Context sender, Class receiver, Note note) {
         Intent myIntent = new Intent(sender, receiver);
         myIntent.putExtra("id", note.getId());
+        myIntent.putExtra("contact", note.getContact());
         myIntent.putExtra("time", note.getDate());
         myIntent.putExtra("title", note.getName());
         myIntent.putExtra("description", note.getText());
@@ -66,4 +67,5 @@ public class MyAlarmManager {
         AlarmManager alarmManager = (AlarmManager)sender. getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
     }
+
 }

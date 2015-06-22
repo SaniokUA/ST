@@ -33,9 +33,11 @@ public ListItemAdapter(Activity context, List<ListItem> list) {
         LayoutInflater inflator = context.getLayoutInflater();
         View view =  inflator.inflate(R.layout.list_item, null);
 
+        ((TextView) view.findViewById(R.id.listContact)).setText(list.get(position).getContact());
         ((TextView) view.findViewById(R.id.listPhone)).setText(list.get(position).getNumber());
         ((TextView) view.findViewById(R.id.listDate)).setText(list.get(position).getDate());
         ((TextView) view.findViewById(R.id.listText)).setText(list.get(position).getText());
+        ((TextView) view.findViewById(R.id.listAlarmSignal)).setText(list.get(position).getAlarmSignal());
 
         if(list.get(position).getType().equals("0")){
             ((ImageView) view.findViewById(R.id.listImage)).setBackgroundResource(R.drawable.in);

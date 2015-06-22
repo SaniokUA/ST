@@ -8,5 +8,7 @@ public class PhoneData {
     public static String DATE = "";
     public static String PHONE = "";
     public static String myTYPE = "";
+    public static String CONTACT = "";
+
 
 }

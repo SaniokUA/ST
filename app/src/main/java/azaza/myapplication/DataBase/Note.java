@@ -3,11 +3,16 @@ package azaza.myapplication.DataBase;
 public class Note {
 
     public static final String ID = "id";
+    public static final String CONTACT = "contact";
     public static final String DATE = "time";
     public static final String TITLE = "title";
     public static final String DESCRIPTION = "description";
 
     private String name;
+
+
+
+    private String contact;
     private String text;
     private long date;
     private boolean complite;
@@ -15,9 +20,10 @@ public class Note {
     private int id;
     private String image;
 
-    public Note(int id, String name, String text, long date, boolean complite, boolean alarm) {
+    public Note(int id, String name, String contact, String text, long date, boolean complite, boolean alarm) {
         this.id = id;
         this.setName(name);
+        this.setContact(contact);
         this.setText(text);
         this.setDate(date);
         this.setComplite(complite);
@@ -68,5 +74,13 @@ public class Note {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
     }
 }
