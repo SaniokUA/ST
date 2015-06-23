@@ -22,6 +22,7 @@ public class MyAlarmService extends Service {
     private String text;
     private String contact;
     private long time;
+    String contactData;
 
     public MyAlarmService() {
     }
@@ -75,8 +76,15 @@ public class MyAlarmService extends Service {
 
 
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+        if(contact!=null){
+            contactData = contact;
+        }else{
+            contactData = title;
+        }
+
         Notification notification = new Notification.Builder(this.getApplicationContext())
-                .setContentTitle(title)
+                .setContentTitle(contactData)
                 .setContentText(text)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setSound(alarmSound)
@@ -86,6 +94,7 @@ public class MyAlarmService extends Service {
                 .getNotification();
 
         mManager.notify(id, notification);
+
 
         return super.onStartCommand(intent, flags, startId);
     }
