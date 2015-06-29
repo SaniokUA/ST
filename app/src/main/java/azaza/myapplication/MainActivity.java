@@ -63,10 +63,8 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
             @Override
             public void onClick(View v) {
 
-
             }
         });
-
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
