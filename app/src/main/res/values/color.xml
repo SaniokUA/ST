@@ -7,4 +7,12 @@
     <item name="grey" type="color">#b2141414</item>
     <item name="light_grey" type="color">#b2494949</item>
 
+
+    <color name="colorPrimary">#404040</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="navigationBarColor">#000000</color>
+    <color name="colorAccent">#404040</color>
+
 </resources>

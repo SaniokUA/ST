@@ -23,7 +23,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import azaza.myapplication.DataBase.DB;
-import azaza.myapplication.DataBase.Note;
+import azaza.myapplication.Model.Note;
 import azaza.myapplication.GlobalData.PhoneData;
 import azaza.myapplication.Manager.MyAlarmManager;
 import azaza.myapplication.Reciver.MyAlarmReceiver;

@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import azaza.myapplication.DataBase.Note;
+import azaza.myapplication.Model.Note;
 import azaza.myapplication.Service.MyAlarmService;
 
 public class MyAlarmReceiver extends BroadcastReceiver {

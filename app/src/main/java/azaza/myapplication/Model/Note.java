@@ -1,4 +1,4 @@
-package azaza.myapplication.DataBase;
+package azaza.myapplication.Model;
 
 public class Note {
 

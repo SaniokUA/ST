@@ -5,6 +5,7 @@ package azaza.myapplication.Model;
  */
 public class ListItem {
 
+    int id;
     String type;
     String contact;
     String number;
@@ -12,8 +13,9 @@ public class ListItem {
     String date;
     String alarmSignal;
 
-    public ListItem(String type, String contact, String number, String date, String text, String alarmSignal) {
+    public ListItem(int id, String type, String contact, String number, String date, String text, String alarmSignal) {
 
+        this.id = id;
         this.type = type;
         this.contact = contact;
         this.number = number;
@@ -21,6 +23,15 @@ public class ListItem {
         this.text = text;
         this.alarmSignal = alarmSignal;
 
+    }
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNumber() {

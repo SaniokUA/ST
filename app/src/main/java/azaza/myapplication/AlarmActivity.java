@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import azaza.myapplication.DataBase.Note;
+import azaza.myapplication.Model.Note;
 
 /**
  * Created by Alex on 19.06.2015.
@@ -42,26 +42,24 @@ public class AlarmActivity extends Activity {
         date = (TextView) findViewById(R.id.textDate);
         contact = (TextView) findViewById(R.id.textContact);
         text = (TextView) findViewById(R.id.textDesc);
-        //  alarmdate = (TextView) findViewById(R.id.textAlarm);
 
         Intent intent = this.getIntent();
 
         String phoneText = intent.getStringExtra("title");
         String contactText = intent.getStringExtra("contact");
         String descText = intent.getStringExtra("description");
-        long time =  intent.getLongExtra(Note.DATE, 0L);
-        id =  intent.getExtras().getInt(Note.ID);
+        long time = intent.getLongExtra(Note.DATE, 0L);
+        id = intent.getExtras().getInt(Note.ID);
 
         Calendar c = new GregorianCalendar();
-        if (time+1000 > c.getTimeInMillis()/1000) {
+        if (time + 1000 > c.getTimeInMillis() / 1000) {
 
             phone.setText(phoneText);
             contact.setText(contactText);
             text.setText(descText);
 
             try {
-                Uri alert = RingtoneManager
-                        .getDefaultUri(RingtoneManager.TYPE_ALARM);
+                Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
 
                 mMediaPlayer = new MediaPlayer();
                 mMediaPlayer.setDataSource(this, alert);
@@ -77,34 +75,25 @@ public class AlarmActivity extends Activity {
             } catch (IOException e) {
                 //some text
             }
-
         }
     }
 
     public void onClose(View view) {
-
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         manager.cancel(id);
-
         this.finish();
-
     }
 
     public void onStopSignal(View view) {
-
-            AlarmActivity.this.mMediaPlayer.stop();
-
+        AlarmActivity.this.mMediaPlayer.stop();
     }
 
     protected void onStart() {
-
         super.onStart();
     }
 
     protected void onStop() {
-
-            AlarmActivity.this.mMediaPlayer.stop();
-
+        AlarmActivity.this.mMediaPlayer.stop();
         super.onStop();
     }
 }

@@ -37,4 +37,7 @@
 
     <string name="on_alarm">Alarm is ON</string>
     <string name="off_alarm">Alarm is OFF</string>
+
+    <string name="widget_name">My first widget</string>
+    <string name="widget_text">Text in widget</string>
 </resources>

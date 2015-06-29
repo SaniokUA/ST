@@ -18,6 +18,13 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Id"
+            android:id="@+id/listId"
+            android:visibility="gone"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="New Text"
             android:id="@+id/listContact" />
 
@@ -46,5 +53,11 @@
             android:id="@+id/listAlarmSignal" />
 
     </LinearLayout>
+
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/deleteItemButton"
+        android:src="@drawable/ic_delete" />
 
 </LinearLayout>

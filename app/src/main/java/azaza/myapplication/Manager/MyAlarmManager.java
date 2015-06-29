@@ -8,7 +8,7 @@ import android.content.Intent;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import azaza.myapplication.DataBase.Note;
+import azaza.myapplication.Model.Note;
 
 
 public class MyAlarmManager {

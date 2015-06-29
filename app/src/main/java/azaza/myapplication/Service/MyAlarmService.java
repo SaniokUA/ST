@@ -13,7 +13,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import azaza.myapplication.AlarmActivity;
-import azaza.myapplication.DataBase.Note;
+import azaza.myapplication.Model.Note;
 import azaza.myapplication.R;
 
 public class MyAlarmService extends Service {
