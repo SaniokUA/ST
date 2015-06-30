@@ -56,11 +56,14 @@ public class DB {
 
     // получить все данные из таблицы DB_TABLE
     public Cursor getAllData() {
+
         return mDB.query(DB_TABLE, null, null, null, null, null, COLUMN_ID + " DESC");
+
     }
 
     // добавить запись в DB_TABLE
     public void addRec(String myType, String number, String contact, String date, String text, long alarmdate) {
+
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_TYPE, myType);
         cv.put(COLUMN_NUBMER, number);
@@ -69,11 +72,14 @@ public class DB {
         cv.put(COLUMN_TXT, text);
         cv.put(COLUMN_ALARMDATE, alarmdate);
         mDB.insert(DB_TABLE, null, cv);
+
     }
 
     // удалить запись из DB_TABLE
-    public void delRec(int id) {
-        mDB.delete(DB_TABLE, COLUMN_ID + " = " + id, null);
+    public void delRec(int id)  {
+
+        mDB.delete(DB_TABLE, COLUMN_ID + "=" + id, null);
+
     }
 
     // класс по созданию и управлению БД

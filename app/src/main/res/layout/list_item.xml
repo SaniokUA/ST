@@ -12,8 +12,7 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1">
+        android:layout_height="wrap_content">
 
         <TextView
             android:layout_width="wrap_content"
@@ -53,11 +52,20 @@
             android:id="@+id/listAlarmSignal" />
 
     </LinearLayout>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" >
 
-    <ImageButton
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:id="@+id/deleteItemButton"
-        android:src="@drawable/ic_delete" />
+        <ImageView
+            android:id="@+id/btn_delete"
+            android:src="@drawable/ic_delete"
+            android:layout_gravity="right|center_vertical"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="#000"
+             />
+    </FrameLayout>
+
+
 
 </LinearLayout>

@@ -1,22 +1,18 @@
 package azaza.myapplication;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +20,7 @@ import java.util.List;
 import azaza.myapplication.Adapter.ListItemAdapter;
 import azaza.myapplication.DataBase.DB;
 import azaza.myapplication.Libs.GetMiliDate;
+import azaza.myapplication.Libs.Swipe.SwipeDismissListViewTouchListener;
 import azaza.myapplication.Model.ListItem;
 
 
@@ -33,9 +30,12 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     ListView listView;
     DB db = new DB(this);
+
     List<ListItem> data;
     Toolbar toolbar;
     ListItemAdapter adapter;
+
+    TextView emptyList;
 
 
     GetMiliDate getMiliDate = new GetMiliDate();
@@ -45,52 +45,42 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        emptyList = (TextView) findViewById(R.id.idListEmpty);
+        emptyList.setVisibility(View.GONE);
+        listView = (ListView) findViewById(R.id.listMain);
+
         toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
         setSupportActionBar(toolbar);
-
 
         db.open();
         data = getModel();
         adapter = new ListItemAdapter(this, data);
-        listView = (ListView) findViewById(R.id.listMain);
         listView.setAdapter(adapter);
 
-        LayoutInflater inflator = this.getLayoutInflater();
-        View view =  inflator.inflate(R.layout.list_item, null);
-        ImageButton itemList;
-        itemList = ((ImageButton) view.findViewById(R.id.deleteItemButton));
-        itemList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        SwipeDismissListViewTouchListener touchListener =
+                new SwipeDismissListViewTouchListener(
+                        listView,
+                        new SwipeDismissListViewTouchListener.DismissCallbacks() {
+                            @Override
+                            public boolean canDismiss(int position) {
+                                return true;
+                            }
 
-            }
-        });
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ListItemAdapter itemAdapter = (ListItemAdapter) parent.getAdapter();
-                final int itemId = itemAdapter.getItem(position).getId();
-
-
-
-
-                AlertDialog.Builder adb = new AlertDialog.Builder(MainActivity.this);
-                adb.setTitle("Delete?");
-                adb.setMessage("Are you sure you want to delete " + position);
-                final int positionToRemove = position;
-                adb.setNegativeButton("Cancel", null);
-                adb.setPositiveButton("Ok", new AlertDialog.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        db.delRec(itemId);
-                        adapter.notifyDataSetChanged();
-                        getSupportLoaderManager().getLoader(0).forceLoad();
-                    }
-                });
-                adb.show();
-            }
-
-        });
+                            @Override
+                            public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+                                for (int position : reverseSortedPositions) {
+                                    int itemId = adapter.getItem(position).getId();
+                                    db.delRec(itemId);
+                                    adapter.remove(adapter.getItem(position));
+                                    getSupportLoaderManager().getLoader(0).forceLoad();
+                                }
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
+        listView.setOnTouchListener(touchListener);
+        // Setting this scroll listener is required to ensure that during ListView scrolling,
+        // we don't look for swipes.
+        listView.setOnScrollListener(touchListener.makeScrollListener());
 
         getSupportLoaderManager().initLoader(0, null, this);
 
@@ -124,9 +114,12 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         List<ListItem> list = new ArrayList<ListItem>();
         Cursor c = db.getAllData();
         if (c.getCount() == 0) {
+            listView.setVisibility(View.GONE);
+            emptyList.setVisibility(View.VISIBLE);
             list.add(get(1, "0", "551579", "Test", "13.13.2013", "Some Text", "1231"));
         } else {
-
+            listView.setVisibility(View.VISIBLE);
+            emptyList.setVisibility(View.GONE);
             if (!c.moveToFirst()) {
             } else {
                 do {
@@ -160,7 +153,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-       return new MyCursorLoader(this, db);
+        return new MyCursorLoader(this, db);
     }
 
     @Override
