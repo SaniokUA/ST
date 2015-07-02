@@ -1,5 +1,6 @@
 package azaza.myapplication;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,7 +26,7 @@ import azaza.myapplication.Libs.Swipe.SwipeDismissListViewTouchListener;
 import azaza.myapplication.Model.ListItem;
 
 
-public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
 
     private static final int CM_DELETE_ID = 1;
 
@@ -48,6 +50,8 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         emptyList = (TextView) findViewById(R.id.idListEmpty);
         emptyList.setVisibility(View.GONE);
         listView = (ListView) findViewById(R.id.listMain);
+        listView.setTextFilterEnabled(true);
+
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
         setSupportActionBar(toolbar);
@@ -89,7 +93,30 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+
         getMenuInflater().inflate(R.menu.menu_list, menu);
+
+        SearchManager searchManager = (SearchManager)
+                getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchMenuItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+
+        searchView.setSearchableInfo(searchManager.
+                getSearchableInfo(getComponentName()));
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(this);
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        adapter.getFilter().filter(query);
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        adapter.getFilter().filter(newText);
         return true;
     }
 
@@ -100,8 +127,16 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+
+        if (id == R.id.action_search) {
+
+        }
+
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_clear) {
+
+            db.delAllRec();
+            getSupportLoaderManager().initLoader(0, null, this);
             return true;
         }
 
@@ -140,7 +175,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     protected void onStop() {
         db.close();
         super.onStop();
-        this.finish();
 
     }
 
@@ -168,6 +202,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     public void onLoaderReset(Loader<Cursor> loader) {
 
     }
+
 
     static class MyCursorLoader extends CursorLoader {
 

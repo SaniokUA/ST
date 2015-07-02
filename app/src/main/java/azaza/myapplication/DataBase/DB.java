@@ -82,6 +82,13 @@ public class DB {
 
     }
 
+    // удалить все записи из DB_TABLE
+    public void delAllRec()  {
+
+        mDB.delete(DB_TABLE, null, null);
+
+    }
+
     // класс по созданию и управлению БД
     private class DBHelper extends SQLiteOpenHelper {
 

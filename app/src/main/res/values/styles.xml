@@ -10,6 +10,25 @@
         <item name="android:textColorPrimary">@color/colorPrimary</item>
         <item name="android:windowBackground">@color/windowBackground</item>
         <item name="colorControlNormal">@color/colorPrimary</item>
+        <item name="searchViewStyle">@style/MySearchViewStyle</item>
     </style>
+
+    <style name="MySearchViewStyle" parent="Widget.AppCompat.SearchView">
+    <!-- Background for the search query section (e.g. EditText) -->
+    <item name="queryBackground">@color/windowBackground</item>
+    <!-- Background for the actions section (e.g. voice, submit) -->
+    <item name="submitBackground">@color/windowBackground</item>
+    <!-- Close button icon -->
+    <!--<item name="closeIcon">...</item>-->
+    <item name="searchIcon">@drawable/ic_magnify</item>
+    <!--&lt;!&ndash; Go/commit button icon &ndash;&gt;-->
+    <!--<item name="goIcon">...</item>-->
+    <!--&lt;!&ndash; Voice search button icon &ndash;&gt;-->
+    <!--<item name="voiceIcon">...</item>-->
+    <!--&lt;!&ndash; Commit icon shown in the query suggestion row &ndash;&gt;-->
+    <!--<item name="commitIcon">...</item>-->
+    <!--&lt;!&ndash; Layout for query suggestion rows &ndash;&gt;-->
+    <!--<item name="suggestionRowLayout">...</item>-->
+</style>
 
 </resources>
