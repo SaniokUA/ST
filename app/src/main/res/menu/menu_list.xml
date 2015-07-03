@@ -3,11 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".NotesListActivity">
 
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        app:showAsAction="never"
-        />
+
 
     <item
         android:id="@+id/action_search"
@@ -19,7 +15,13 @@
         android:id="@+id/action_clear"
         android:orderInCategory="200"
         android:title="Clear all"
-        android:icon="@drawable/ic_delete"
-        app:showAsAction="always"
+        app:actionViewClass="android.support.v7.widget.DeleteView"
+        app:showAsAction="collapseActionView"
+        />
+    <item android:id="@+id/action_exit"
+        android:title="Exit"
+        android:orderInCategory="300"
+        app:actionViewClass="android.support.v7.widget.ExitView"
+        app:showAsAction="never"
         />
 </menu>

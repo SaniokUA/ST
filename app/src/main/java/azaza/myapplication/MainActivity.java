@@ -2,19 +2,25 @@ package azaza.myapplication;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.mikepenz.materialdrawer.Drawer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +29,7 @@ import azaza.myapplication.Adapter.ListItemAdapter;
 import azaza.myapplication.DataBase.DB;
 import azaza.myapplication.Libs.GetMiliDate;
 import azaza.myapplication.Libs.Swipe.SwipeDismissListViewTouchListener;
+import azaza.myapplication.Menu.MaterialMenu;
 import azaza.myapplication.Model.ListItem;
 
 
@@ -39,6 +46,9 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     TextView emptyList;
 
+    AlertDialog.Builder ad;
+
+    private Drawer.Result drawerResult = null;
 
     GetMiliDate getMiliDate = new GetMiliDate();
 
@@ -55,6 +65,11 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+        drawerResult = MaterialMenu.createCommonDrawer(this, toolbar);
+      //  MaterialMenu.handlerOnClick(drawerResult, this);
 
         db.open();
         data = getModel();
@@ -86,8 +101,37 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         // we don't look for swipes.
         listView.setOnScrollListener(touchListener.makeScrollListener());
 
+        ad = new AlertDialog.Builder(this);
+        ad.setTitle("Delete all items");  // заголовок
+        ad.setIcon(R.drawable.ic_delete_dark);
+        ad.setMessage("Do you want delete all items?"); // сообщение
+        ad.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int arg1) {
+
+                db.delAllRec();
+                getSupportLoaderManager().initLoader(0, null, MainActivity.this);
+            }
+        });
+
+        ad.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int arg1) {
+
+            }
+        });
+        ad.setCancelable(true);
+
+
         getSupportLoaderManager().initLoader(0, null, this);
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerResult.isDrawerOpen()) {
+            drawerResult.closeDrawer();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -100,6 +144,10 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
                 getSystemService(Context.SEARCH_SERVICE);
         MenuItem searchMenuItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchMenuItem.getActionView();
+//        ((EditText) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text)).setHintTextColor(getResources().getColor(R.Color.WHITE));
+        EditText searchEdit = (EditText) searchView.getRootView().findViewById(R.id.search_src_text);
+        searchEdit.setHintTextColor(Color.WHITE);
+        searchEdit.setTextColor(Color.WHITE);
 
         searchView.setSearchableInfo(searchManager.
                 getSearchableInfo(getComponentName()));
@@ -128,16 +176,18 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         int id = item.getItemId();
 
 
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_clear) {
+            ad.show();
+
+        }
+
         if (id == R.id.action_search) {
 
         }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_clear) {
-
-            db.delAllRec();
-            getSupportLoaderManager().initLoader(0, null, this);
-            return true;
+        if (id == R.id.action_exit) {
+            this.finish();
         }
 
         return super.onOptionsItemSelected(item);
@@ -174,6 +224,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     @Override
     protected void onStop() {
         db.close();
+     //   this.finish();
         super.onStop();
 
     }
