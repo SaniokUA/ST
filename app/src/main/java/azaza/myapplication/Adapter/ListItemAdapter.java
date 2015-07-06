@@ -20,10 +20,7 @@ import azaza.myapplication.R;
  */
 public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
-    private List<ListItem> list;
-    public  List<ListItem> listNew;
     private Activity context;
-    List<ListItem> resListItems;
     private Filter textFilter;
 
     private List<ListItem> allModelItemsArray;
@@ -39,6 +36,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
         this.filteredModelItemsArray = new ArrayList<ListItem>();
         filteredModelItemsArray.addAll(allModelItemsArray);
+
     }
 
     @Override
@@ -67,38 +65,37 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
     @Override
     public Filter getFilter() {
-        if (textFilter == null){
+        if (textFilter == null) {
             textFilter = new PlanetFilter();
         }
 
         return textFilter;
     }
 
-    private class PlanetFilter extends Filter
-    {
+    private class PlanetFilter extends Filter {
 
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
 
             constraint = constraint.toString().toLowerCase();
             FilterResults result = new FilterResults();
-            if(constraint != null && constraint.toString().length() > 0)
-            {
+            if (constraint != null && constraint.toString().length() > 0) {
                 ArrayList<ListItem> filteredItems = new ArrayList<ListItem>();
 
-                for(int i = 0, l = allModelItemsArray.size(); i < l; i++)
-                {
+                for (int i = 0, l = allModelItemsArray.size(); i < l; i++) {
                     ListItem m = allModelItemsArray.get(i);
-                    if(m.getContact().toLowerCase().contains(constraint))
-                        filteredItems.add(m);
+                    try {
+                        if (m.getContact().toLowerCase().contains(constraint)) {
+                            filteredItems.add(m);
+                        }
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
                 }
-                result.count = filteredItems.size();
                 result.values = filteredItems;
-            }
-            else
-            {
-                synchronized(this)
-                {
+                result.count = filteredItems.size();
+            } else {
+                synchronized (this) {
                     result.values = allModelItemsArray;
                     result.count = allModelItemsArray.size();
                 }
@@ -110,10 +107,10 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
 
-            filteredModelItemsArray = (ArrayList<ListItem>)results.values;
+            filteredModelItemsArray = (ArrayList<ListItem>) results.values;
             notifyDataSetChanged();
             clear();
-            for(int i = 0, l = filteredModelItemsArray.size(); i < l; i++)
+            for (int i = 0, l = filteredModelItemsArray.size(); i < l; i++)
                 add(filteredModelItemsArray.get(i));
             notifyDataSetInvalidated();
         }

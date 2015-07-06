@@ -77,6 +77,7 @@ public class MaterialMenu {
                         if (position == 1) {
 
                             Intent intent = new Intent(activity, MainActivity.class);
+                            intent.setFlags(intent.FLAG_ACTIVITY_SINGLE_TOP);
                             activity.startActivity(intent);
 
                         } else if (position == 2) {

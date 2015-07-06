@@ -112,11 +112,8 @@ public class CallActivity extends Activity {
     public void onSave(View v) {
 
         long timeMili = getTimeMili(yearSet, monthSet, daySet, hourSet, minuteSet);
-
         Note note = new Note(ID++, PhoneData.PHONE, PhoneData.CONTACT, comment.getText().toString(), timeMili, false, true);
         setAlarm(note);
-
-
         db.open();
         text = (comment.getText().toString());
         db.addRec(PhoneData.myTYPE, PhoneData.PHONE, PhoneData.CONTACT, PhoneData.DATE, text, timeMili);

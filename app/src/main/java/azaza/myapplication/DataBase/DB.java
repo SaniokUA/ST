@@ -3,6 +3,7 @@ package azaza.myapplication.DataBase;
 /**
  * Created by Alex on 05.06.2015.
  */
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -51,12 +52,14 @@ public class DB {
 
     // закрыть подключение
     public void close() {
-        if (mDBHelper!=null) mDBHelper.close();
+        if (mDBHelper != null) mDBHelper.close();
     }
 
     // получить все данные из таблицы DB_TABLE
     public Cursor getAllData() {
-
+       if(!mDB.isOpen()){
+           open();
+       }
         return mDB.query(DB_TABLE, null, null, null, null, null, COLUMN_ID + " DESC");
 
     }
@@ -76,15 +79,19 @@ public class DB {
     }
 
     // удалить запись из DB_TABLE
-    public void delRec(int id)  {
-
+    public void delRec(int id) {
+        if(!mDB.isOpen()){
+            open();
+        }
         mDB.delete(DB_TABLE, COLUMN_ID + "=" + id, null);
 
     }
 
     // удалить все записи из DB_TABLE
-    public void delAllRec()  {
-
+    public void delAllRec() {
+        if(!mDB.isOpen()){
+            open();
+        }
         mDB.delete(DB_TABLE, null, null);
 
     }

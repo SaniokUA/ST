@@ -91,7 +91,8 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
                                     int itemId = adapter.getItem(position).getId();
                                     db.delRec(itemId);
                                     adapter.remove(adapter.getItem(position));
-                                    getSupportLoaderManager().getLoader(0).forceLoad();
+                                    adapter = new ListItemAdapter(MainActivity.this, getModel());
+                                    listView.setAdapter(adapter);
                                 }
                                 adapter.notifyDataSetChanged();
                             }
@@ -122,6 +123,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
 
         getSupportLoaderManager().initLoader(0, null, this);
+
 
     }
 
@@ -224,7 +226,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     @Override
     protected void onStop() {
         db.close();
-     //   this.finish();
+        this.finish();
         super.onStop();
 
     }
@@ -251,7 +253,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
     }
 
 
