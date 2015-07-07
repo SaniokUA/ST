@@ -122,7 +122,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         ad.setCancelable(true);
 
 
-        getSupportLoaderManager().initLoader(0, null, this);
+//        getSupportLoaderManager().initLoader(0, null, this);
 
 
     }
@@ -247,7 +247,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         data = getModel();
         adapter = new ListItemAdapter(this, data);
-        listView = (ListView) findViewById(R.id.listMain);
         listView.setAdapter(adapter);
     }
 

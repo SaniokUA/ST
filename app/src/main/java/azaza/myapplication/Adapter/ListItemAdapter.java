@@ -12,6 +12,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import azaza.myapplication.Libs.Contacts.GetContactPhoto;
+import azaza.myapplication.Libs.Image.SetImageRadius;
 import azaza.myapplication.Model.ListItem;
 import azaza.myapplication.R;
 
@@ -48,17 +50,34 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
         String id = String.valueOf(filteredModelItemsArray.get(position).getId());
 
         ((TextView) view.findViewById(R.id.listId)).setText(id);
-        ((TextView) view.findViewById(R.id.listContact)).setText(filteredModelItemsArray.get(position).getContact());
+
+        if (filteredModelItemsArray.get(position).getContact() != "" && filteredModelItemsArray.get(position).getContact() != null) {
+            ((TextView) view.findViewById(R.id.listContact)).setVisibility(View.VISIBLE);
+            ((TextView) view.findViewById(R.id.listContact)).setText(filteredModelItemsArray.get(position).getContact());
+        } else {
+            ((TextView) view.findViewById(R.id.listContact)).setVisibility(View.GONE);
+        }
+
         ((TextView) view.findViewById(R.id.listPhone)).setText(filteredModelItemsArray.get(position).getNumber());
         ((TextView) view.findViewById(R.id.listDate)).setText(filteredModelItemsArray.get(position).getDate());
-        ((TextView) view.findViewById(R.id.listText)).setText(filteredModelItemsArray.get(position).getText());
+
+        String text = filteredModelItemsArray.get(position).getText();
+        if (!text.equals("")) {
+            ((TextView) view.findViewById(R.id.listText)).setVisibility(View.VISIBLE);
+            ((TextView) view.findViewById(R.id.listText)).setText(filteredModelItemsArray.get(position).getText());
+        } else {
+            ((TextView) view.findViewById(R.id.listText)).setVisibility(View.GONE);
+        }
+
         ((TextView) view.findViewById(R.id.listAlarmSignal)).setText(filteredModelItemsArray.get(position).getAlarmSignal());
 
         if (filteredModelItemsArray.get(position).getType().equals("0")) {
-            ((ImageView) view.findViewById(R.id.listImage)).setBackgroundResource(R.drawable.in);
+            ((ImageView) view.findViewById(R.id.listImage)).setBackgroundResource(R.drawable.ic_arrow_top_right);
         } else {
-            ((ImageView) view.findViewById(R.id.listImage)).setBackgroundResource(R.drawable.ou);
+            ((ImageView) view.findViewById(R.id.listImage)).setBackgroundResource(R.drawable.ic_arrow_bottom_left);
         }
+
+        ((ImageView) view.findViewById(R.id.contactImage)).setImageBitmap(SetImageRadius.getRoundedCornersImage(GetContactPhoto.getContactPhoto(context, filteredModelItemsArray.get(position).getNumber()), 50));
 
         return view;
     }

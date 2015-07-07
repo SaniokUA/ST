@@ -5,7 +5,6 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.text.format.DateFormat;
@@ -47,17 +46,13 @@ public class CallActivity extends Activity {
     DB db = new DB(this);
     ArrayList<String> results;
     ImageView contactImageView;
-    Drawable drawable;
 
     int year, month, day, hour, minute;
     static int yearSet, monthSet, daySet, hourSet, minuteSet;
     public static int ID=1;
 
-
-
-    DatePicker datePicker;
     Calendar calendar;
-    long time, setTimeMili;
+    long time;
 
 
     @Override
