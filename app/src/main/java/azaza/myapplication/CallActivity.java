@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.text.format.DateFormat;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -23,9 +25,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import azaza.myapplication.DataBase.DB;
-import azaza.myapplication.Model.Note;
 import azaza.myapplication.GlobalData.PhoneData;
+import azaza.myapplication.Libs.Contacts.GetContactPhoto;
+import azaza.myapplication.Libs.Image.SetImageRadius;
 import azaza.myapplication.Manager.MyAlarmManager;
+import azaza.myapplication.Model.Note;
 import azaza.myapplication.Reciver.MyAlarmReceiver;
 
 /**
@@ -42,6 +46,8 @@ public class CallActivity extends Activity {
     String text;
     DB db = new DB(this);
     ArrayList<String> results;
+    ImageView contactImageView;
+    Drawable drawable;
 
     int year, month, day, hour, minute;
     static int yearSet, monthSet, daySet, hourSet, minuteSet;
@@ -59,7 +65,7 @@ public class CallActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
 
-
+        contactImageView = (ImageView) findViewById(R.id.contactImage);
         speak = (ImageButton) findViewById(R.id.button);
         phone = (TextView) findViewById(R.id.Phone);
         date = (TextView) findViewById(R.id.Date);
@@ -78,6 +84,14 @@ public class CallActivity extends Activity {
 
         phone.setText(PhoneData.PHONE);
         date.setText(PhoneData.DATE);
+
+        if(PhoneData.IMAGE!=null) {
+            contactImageView.setVisibility(View.VISIBLE);
+            contactImageView.setImageBitmap(SetImageRadius.getRoundedCornersImage(GetContactPhoto.getContactPhoto(this,PhoneData.PHONE), 50));
+        }else{
+            contactImageView.setVisibility(View.GONE);
+        }
+
 
         if(PhoneData.CONTACT !="") {
             contact.setText(PhoneData.CONTACT);
@@ -222,4 +236,7 @@ public class CallActivity extends Activity {
 
         return time;
     }
+
+
+
 }
