@@ -1,13 +1,13 @@
 package azaza.myapplication;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
-import android.app.Dialog;
-import android.app.TimePickerDialog;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
-import android.text.format.DateFormat;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -19,6 +19,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -38,7 +39,7 @@ public class CallActivity extends Activity {
 
     LinearLayout setAlarmwindow;
     Switch switchAlarmWindow;
-    TextView phone, date, contact;
+    TextView phone, date, contact, alarmText;
     ImageButton speak;
     Button setDate, setTime;
     EditText comment, editDate, editTime;
@@ -46,6 +47,10 @@ public class CallActivity extends Activity {
     DB db = new DB(this);
     ArrayList<String> results;
     ImageView contactImageView;
+    AlertDialog.Builder builder;
+    View multiPickerLayout;
+
+    long timeMili;
 
     int year, month, day, hour, minute;
     static int yearSet, monthSet, daySet, hourSet, minuteSet;
@@ -59,7 +64,11 @@ public class CallActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
+        this.getWindow().setGravity(Gravity.BOTTOM);
 
+
+
+        multiPickerLayout = LayoutInflater.from(this).inflate(R.layout.dialog_pickers, null);
         contactImageView = (ImageView) findViewById(R.id.contactImage);
         speak = (ImageButton) findViewById(R.id.button);
         phone = (TextView) findViewById(R.id.Phone);
@@ -70,11 +79,7 @@ public class CallActivity extends Activity {
 
         contact = (TextView) findViewById(R.id.Contact);
 
-        setDate = (Button) findViewById(R.id.setDate);
-        setTime = (Button) findViewById(R.id.setTime);
-
-        editDate = (EditText) findViewById(R.id.editDate);
-        editTime = (EditText) findViewById(R.id.editTime);
+        alarmText = (TextView) findViewById(R.id.textTimeDate);
 
 
         phone.setText(PhoneData.PHONE);
@@ -115,12 +120,13 @@ public class CallActivity extends Activity {
 
         }
 
+        setDateTimePiker();
 
     }
 
     public void onSave(View v) {
 
-        long timeMili = getTimeMili(yearSet, monthSet, daySet, hourSet, minuteSet);
+
         Note note = new Note(ID++, PhoneData.PHONE, PhoneData.CONTACT, comment.getText().toString(), timeMili, false, true);
         setAlarm(note);
         db.open();
@@ -149,7 +155,6 @@ public class CallActivity extends Activity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-
         super.onSaveInstanceState(outState);
         outState.putStringArrayList("results", results);
     }
@@ -162,63 +167,7 @@ public class CallActivity extends Activity {
         }
     }
 
-    public void setDate(View view) {
-        showDialog(1);
-    }
 
-    public void setTime(View view) {
-        showDialog(2);
-    }
-
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        // TODO Auto-generated method stub
-        calendar = Calendar.getInstance();
-
-        if (id == 1) {
-            year = calendar.get(Calendar.YEAR);
-            month = calendar.get(Calendar.MONTH);
-            day = calendar.get(Calendar.DAY_OF_MONTH);
-            return new DatePickerDialog(this, myDateListener, year, month, day);
-
-        }
-        if (id == 2) {
-            hour = calendar.get(Calendar.HOUR_OF_DAY);
-            minute = calendar.get(Calendar.MINUTE);
-            return new TimePickerDialog(this, myTimeListener, hour, minute, DateFormat.is24HourFormat(this));
-        }
-
-        return null;
-    }
-
-    private DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
-        @Override
-        public void onDateSet(DatePicker arg0, int arg1, int arg2, int arg3) {
-            yearSet = arg1;
-            monthSet = arg2;
-            daySet = arg3;
-            showDate(arg1, arg2 + 1, arg3);
-        }
-    };
-    private TimePickerDialog.OnTimeSetListener myTimeListener = new TimePickerDialog.OnTimeSetListener() {
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            hourSet = hourOfDay;
-            minuteSet = minute;
-            showTime(hourOfDay, minute);
-        }
-    };
-
-    private void showDate(int year, int month, int day) {
-
-        editDate.setText(new StringBuilder().append(day).append("/").append(month).append("/").append(year));
-
-
-    }
-
-    private void showTime(int hour, int minute) {
-        editTime.setText(new StringBuilder().append(hour).append(":").append(minute));
-    }
 
     private void setAlarm(Note note) {
         MyAlarmManager.setAlarm(this, MyAlarmReceiver.class, note);
@@ -232,6 +181,77 @@ public class CallActivity extends Activity {
         return time;
     }
 
+    /**
+     * Set time and date pikers with settings
+     */
+    public void setDateTimePiker(){
+
+        calendar = Calendar.getInstance();
+
+            year = calendar.get(Calendar.YEAR);
+            month = calendar.get(Calendar.MONTH);
+            day = calendar.get(Calendar.DAY_OF_MONTH);
+            hour = calendar.get(Calendar.HOUR_OF_DAY);
+            minute = calendar.get(Calendar.MINUTE);
+
+        final DatePicker multiPickerDate = (DatePicker) multiPickerLayout.findViewById(R.id.multipicker_date);
+        final TimePicker multiPickerTime = (TimePicker) multiPickerLayout.findViewById(R.id.multipicker_time);
+        multiPickerTime.setIs24HourView(true);
+        multiPickerTime.setCurrentHour(hour);
+        multiPickerTime.setCurrentMinute(minute+1);
+
+        DialogInterface.OnClickListener dialogButtonListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch(which) {
+                    case DialogInterface.BUTTON_NEGATIVE: {
+                        // user tapped "cancel"
+                        dialog.dismiss();
+                        break;
+                    }
+                    case DialogInterface.BUTTON_POSITIVE: {
+
+                        yearSet = multiPickerDate.getYear();
+                        monthSet = multiPickerDate.getMonth();
+                        daySet = multiPickerDate.getDayOfMonth();
+                        hourSet = multiPickerTime.getCurrentHour();
+                        minuteSet = multiPickerTime.getCurrentMinute();
+
+                        setAlarmwindow.setVisibility(View.VISIBLE);
+                        timeMili = getTimeMili(yearSet, monthSet, daySet, hourSet, minuteSet);
+                        alarmText.setText(convertDate(timeMili*1000));
+                        dialog.dismiss();
+                        break;
+                    }
+                    default: {
+                        dialog.dismiss();
+                        break;
+                    }
+                }
+            }
+        };
+
+        builder = new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+        builder.setView(multiPickerLayout);
+        builder.setPositiveButton("Set", dialogButtonListener);
+        builder.setNegativeButton("Cancel", dialogButtonListener);
+        builder.create();
+
+    }
+
+    public void onAddAlarm(View view){
+        builder.show();
+    }
+
+    public static String convertDate(long dateInMilliseconds) {
+        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy kk:mm");
+        String result = df.format(dateInMilliseconds);
+        return result;
+    }
 
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 }

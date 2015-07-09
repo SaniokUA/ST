@@ -13,8 +13,14 @@
         <!--<item name="android:editTextColor">@android:color/white</item>-->
         <!--<item name="android:textColorHint">@android:color/white</item>-->
     </style>
+
     <style name="MyActionBarWidgetTheme" parent="Widget.AppCompat.SearchView">
         <item name="android:textColorHint">@color/windowBackground</item>
+    </style>
+
+    <style name="DialogTheme" parent="android:Theme.Holo.Light.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:foregroundGravity">bottom</item>
     </style>
 
 
