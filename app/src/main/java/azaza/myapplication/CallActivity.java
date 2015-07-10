@@ -1,31 +1,46 @@
 package azaza.myapplication;
 
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.CalendarScopes;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import azaza.myapplication.DataBase.DB;
 import azaza.myapplication.GlobalData.PhoneData;
+import azaza.myapplication.Google.ApiAsyncTask;
 import azaza.myapplication.Libs.Contacts.GetContactPhoto;
 import azaza.myapplication.Libs.Image.SetImageRadius;
 import azaza.myapplication.Manager.MyAlarmManager;
@@ -37,13 +52,11 @@ import azaza.myapplication.Reciver.MyAlarmReceiver;
  */
 public class CallActivity extends Activity {
 
-    LinearLayout setAlarmwindow;
-    Switch switchAlarmWindow;
+    LinearLayout setAlarmwindow, addNote;
     TextView phone, date, contact, alarmText;
     ImageButton speak;
-    Button setDate, setTime;
-    EditText comment, editDate, editTime;
-    String text;
+    EditText comment;
+    String text = "";
     DB db = new DB(this);
     ArrayList<String> results;
     ImageView contactImageView;
@@ -59,6 +72,16 @@ public class CallActivity extends Activity {
     Calendar calendar;
     long time;
 
+    public com.google.api.services.calendar.Calendar mService;
+    GoogleAccountCredential credential;
+    final HttpTransport transport = AndroidHttp.newCompatibleTransport();
+    final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+
+    public static final int REQUEST_ACCOUNT_PICKER = 1000;
+    public static final int REQUEST_AUTHORIZATION = 1001;
+    public static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String[] SCOPES = { CalendarScopes.CALENDAR };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,16 +89,23 @@ public class CallActivity extends Activity {
         setContentView(R.layout.activity_call);
         this.getWindow().setGravity(Gravity.BOTTOM);
 
+        calendar = Calendar.getInstance();
+
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH);
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+        hour = calendar.get(Calendar.HOUR_OF_DAY);
+        minute = calendar.get(Calendar.MINUTE);
 
 
-        multiPickerLayout = LayoutInflater.from(this).inflate(R.layout.dialog_pickers, null);
         contactImageView = (ImageView) findViewById(R.id.contactImage);
         speak = (ImageButton) findViewById(R.id.button);
         phone = (TextView) findViewById(R.id.Phone);
         date = (TextView) findViewById(R.id.Date);
         comment = (EditText) findViewById(R.id.comment);
         setAlarmwindow = (LinearLayout) findViewById(R.id.SetAlarmWindow);
-        switchAlarmWindow = (Switch) findViewById(R.id.switchAlarm);
+        addNote =  (LinearLayout) findViewById(R.id.addNote);
+
 
         contact = (TextView) findViewById(R.id.Contact);
 
@@ -89,9 +119,8 @@ public class CallActivity extends Activity {
             contactImageView.setVisibility(View.VISIBLE);
             contactImageView.setImageBitmap(SetImageRadius.getRoundedCornersImage(GetContactPhoto.getContactPhoto(this,PhoneData.PHONE), 50));
         }else{
-            contactImageView.setVisibility(View.GONE);
+            contactImageView.setImageResource(R.drawable.ic_account_plus);
         }
-
 
         if(PhoneData.CONTACT !="") {
             contact.setText(PhoneData.CONTACT);
@@ -120,12 +149,25 @@ public class CallActivity extends Activity {
 
         }
 
-        setDateTimePiker();
+
+        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+        credential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(SCOPES))
+                .setBackOff(new ExponentialBackOff())
+                .setSelectedAccountName(settings.getString(PREF_ACCOUNT_NAME, null));
+
+        mService = new com.google.api.services.calendar.Calendar.Builder(
+                transport, jsonFactory, credential)
+                .setApplicationName("Google Calendar API Android Quickstart")
+                .build();
+
+        if(settings.getString(PREF_ACCOUNT_NAME,null) == null){
+            chooseAccount();
+        }
 
     }
 
     public void onSave(View v) {
-
 
         Note note = new Note(ID++, PhoneData.PHONE, PhoneData.CONTACT, comment.getText().toString(), timeMili, false, true);
         setAlarm(note);
@@ -133,9 +175,14 @@ public class CallActivity extends Activity {
         text = (comment.getText().toString());
         db.addRec(PhoneData.myTYPE, PhoneData.PHONE, PhoneData.CONTACT, PhoneData.DATE, text, timeMili);
         db.close();
+
+        if(PhoneData.CONTACT == null ){
+            PhoneData.CONTACT = "";
+        }
+        new ApiAsyncTask(this, text, PhoneData.CONTACT + " "+ PhoneData.PHONE,  timeMili).execute();
         this.finish();
-        Intent i = new Intent(this, MainActivity.class);
-        startActivity(i);
+        showToast();
+
     }
 
 
@@ -143,30 +190,12 @@ public class CallActivity extends Activity {
         this.finish();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1010 && resultCode == RESULT_OK) {
-            results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            comment.setText(results.toString());
-        }
-
-        super.onActivityResult(requestCode, resultCode, data);
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putStringArrayList("results", results);
     }
-
-    public void onSwitch(View v) {
-        if (switchAlarmWindow.isChecked()) {
-            setAlarmwindow.setVisibility(View.VISIBLE);
-        } else {
-            setAlarmwindow.setVisibility(View.GONE);
-        }
-    }
-
 
 
     private void setAlarm(Note note) {
@@ -185,14 +214,9 @@ public class CallActivity extends Activity {
      * Set time and date pikers with settings
      */
     public void setDateTimePiker(){
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        multiPickerLayout = inflater.inflate(R.layout.dialog_pickers, null, false);
 
-        calendar = Calendar.getInstance();
-
-            year = calendar.get(Calendar.YEAR);
-            month = calendar.get(Calendar.MONTH);
-            day = calendar.get(Calendar.DAY_OF_MONTH);
-            hour = calendar.get(Calendar.HOUR_OF_DAY);
-            minute = calendar.get(Calendar.MINUTE);
 
         final DatePicker multiPickerDate = (DatePicker) multiPickerLayout.findViewById(R.id.multipicker_date);
         final TimePicker multiPickerTime = (TimePicker) multiPickerLayout.findViewById(R.id.multipicker_time);
@@ -219,8 +243,9 @@ public class CallActivity extends Activity {
 
                         setAlarmwindow.setVisibility(View.VISIBLE);
                         timeMili = getTimeMili(yearSet, monthSet, daySet, hourSet, minuteSet);
-                        alarmText.setText(convertDate(timeMili*1000));
+                        alarmText.setText(convertDate(timeMili * 1000));
                         dialog.dismiss();
+
                         break;
                     }
                     default: {
@@ -235,18 +260,113 @@ public class CallActivity extends Activity {
         builder.setView(multiPickerLayout);
         builder.setPositiveButton("Set", dialogButtonListener);
         builder.setNegativeButton("Cancel", dialogButtonListener);
-        builder.create();
+        builder.show();
 
     }
 
+
+
     public void onAddAlarm(View view){
-        builder.show();
+        setDateTimePiker();
     }
 
     public static String convertDate(long dateInMilliseconds) {
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy kk:mm");
         String result = df.format(dateInMilliseconds);
         return result;
+    }
+
+    public void addNoteAlarm(View view){
+        addNote.setVisibility(View.VISIBLE);
+    }
+
+    public void showToast() {
+        //создаем и отображаем текстовое уведомление
+        Toast toast = Toast.makeText(getApplicationContext(),
+                "Saved",
+                Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.BOTTOM, 0, 0);
+        toast.show();
+    }
+
+    @Override
+    protected void onActivityResult(
+            int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case REQUEST_GOOGLE_PLAY_SERVICES:
+                if (resultCode == RESULT_OK) {
+                   // refreshResults();
+                } else {
+                    isGooglePlayServicesAvailable();
+                }
+                break;
+            case REQUEST_ACCOUNT_PICKER:
+                if (resultCode == RESULT_OK && data != null &&
+                        data.getExtras() != null) {
+                    String accountName =
+                            data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                    if (accountName != null) {
+                        credential.setSelectedAccountName(accountName);
+                        SharedPreferences settings =
+                                getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.commit();
+                     //   refreshResults();
+                    }
+                } else if (resultCode == RESULT_CANCELED) {
+                  //  mStatusText.setText("Account unspecified.");
+                }
+                break;
+            case REQUEST_AUTHORIZATION:
+                if (resultCode == RESULT_OK) {
+                //    refreshResults();
+                } else {
+                    chooseAccount();
+                }
+                break;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void chooseAccount() {
+        startActivityForResult(
+                credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
+    }
+
+
+    private boolean isGooglePlayServicesAvailable() {
+        final int connectionStatusCode =
+                GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (GooglePlayServicesUtil.isUserRecoverableError(connectionStatusCode)) {
+            showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
+            return false;
+        } else if (connectionStatusCode != ConnectionResult.SUCCESS ) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Display an error dialog showing that Google Play Services is missing
+     * or out of date.
+     * @param connectionStatusCode code describing the presence (or lack of)
+     *     Google Play Services on this device.
+     */
+    void showGooglePlayServicesAvailabilityErrorDialog(
+            final int connectionStatusCode) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Dialog dialog = GooglePlayServicesUtil.getErrorDialog(
+                        connectionStatusCode,
+                        CallActivity.this,
+                        REQUEST_GOOGLE_PLAY_SERVICES);
+                dialog.show();
+            }
+        });
     }
 
 

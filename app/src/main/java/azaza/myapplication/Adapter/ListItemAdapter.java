@@ -1,6 +1,7 @@
 package azaza.myapplication.Adapter;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import azaza.myapplication.Libs.Contacts.GetContactPhoto;
-import azaza.myapplication.Libs.Image.SetImageRadius;
 import azaza.myapplication.Model.ListItem;
 import azaza.myapplication.R;
 
@@ -76,8 +76,8 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
         } else {
             ((ImageView) view.findViewById(R.id.listImage)).setBackgroundResource(R.drawable.ic_arrow_bottom_left);
         }
-
-        ((ImageView) view.findViewById(R.id.contactImage)).setImageBitmap(SetImageRadius.getRoundedCornersImage(GetContactPhoto.getContactPhoto(context, filteredModelItemsArray.get(position).getNumber()), 50));
+        Bitmap imageNew = GetContactPhoto.getContactPhoto(context, filteredModelItemsArray.get(position).getNumber());
+        ((ImageView) view.findViewById(R.id.contactImage)).setImageBitmap(imageNew);
 
         return view;
     }

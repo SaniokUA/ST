@@ -9,7 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.telephony.TelephonyManager;
 
-import azaza.myapplication.Libs.CurDate;
+import azaza.myapplication.Libs.Date.CurDate;
 
 public abstract class PhonecallReceiver extends BroadcastReceiver {
 

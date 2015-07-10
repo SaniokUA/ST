@@ -1,4 +1,4 @@
-package azaza.myapplication.Libs;
+package azaza.myapplication.Libs.Date;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

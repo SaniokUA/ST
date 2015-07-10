@@ -34,6 +34,9 @@ public class GetContactPhoto {
             Bitmap defaultPhoto = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_account);
             return defaultPhoto;
         }
+
+        contact.close();
+
         if (photoUri != null) {
             InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(
                     cr, photoUri);
@@ -45,6 +48,8 @@ public class GetContactPhoto {
             return defaultPhoto;
         }
         Bitmap defaultPhoto = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_account);
+
         return defaultPhoto;
+
     }
 }

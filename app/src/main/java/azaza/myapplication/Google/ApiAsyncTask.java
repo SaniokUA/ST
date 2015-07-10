@@ -10,60 +10,79 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
+
+import azaza.myapplication.CallActivity;
 
 /**
  * An asynchronous task that handles the Google Calendar API call.
  * Placing the API calls in their own task ensures the UI stays responsive.
  */
 public class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
-    private GoogleActivity mActivity;
+    private CallActivity mActivity;
+    String textNode;
+    String contact;
+    long date;
 
+    private static final DateFormat DF;
+
+    static {
+        DF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S'Z'", Locale.getDefault());
+        DF.setTimeZone(TimeZone.getTimeZone("EEST"));
+    }
     /**
      * Constructor.
+     *
      * @param activity MainActivity that spawned this task.
      */
-    ApiAsyncTask(GoogleActivity activity) {
+    public ApiAsyncTask(CallActivity activity, String textNode, String contact, long date) {
         this.mActivity = activity;
+        this.textNode = textNode;
+        this.contact = contact;
+        this.date = date;
     }
 
     /**
      * Background task to call Google Calendar API.
+     *
      * @param params no parameters needed for this task.
      */
     @Override
     protected Void doInBackground(Void... params) {
         try {
 
-            mActivity.clearResultsText();
-            mActivity.updateResultsText(getDataFromApi());
+            getDataFromApi(contact, textNode, date);
 
         } catch (final GooglePlayServicesAvailabilityIOException availabilityException) {
-            mActivity.showGooglePlayServicesAvailabilityErrorDialog(
-                    availabilityException.getConnectionStatusCode());
+
+            availabilityException.getConnectionStatusCode();
 
         } catch (UserRecoverableAuthIOException userRecoverableException) {
             mActivity.startActivityForResult(
                     userRecoverableException.getIntent(),
-                    GoogleActivity.REQUEST_AUTHORIZATION);
+                    CallActivity.REQUEST_AUTHORIZATION);
 
         } catch (IOException e) {
-            mActivity.updateStatus("The following error occurred: " +
-                    e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
 
     /**
      * Fetch a list of the next 10 events from the primary calendar.
+     *
      * @return List of Strings describing returned events.
      * @throws IOException
      */
-    private List<String> getDataFromApi() throws IOException {
+    private List<String> getDataFromApi(String title, String description, long date) throws IOException {
         // List the next 10 events from the primary calendar.
         DateTime now = new DateTime(System.currentTimeMillis());
         List<String> eventStrings = new ArrayList<String>();
@@ -86,62 +105,35 @@ public class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
                     String.format("%s (%s)", event.getSummary(), start));
         }
 
-        setEvent("Title", "Desc","Khmel");
+        setEvent(title, description, date);
 
         return eventStrings;
     }
 
-    public void setEvent(String title, String description, String location ) throws IOException {
+    public void setEvent(String title, String description, long date) throws IOException {
 
         Event event = new Event()
                 .setSummary(title)
-                .setLocation(location)
                 .setDescription(description);
 
-        DateTime startDateTime = new DateTime("2015-06-25T15:00:00+03:00");
+        DateTime startDateTime = new DateTime(DF.format(new Date(date*1000)));
         EventDateTime start = new EventDateTime()
                 .setDateTime(startDateTime)
                 .setTimeZone(getTimeZone());
         event.setStart(start);
 
-        DateTime endDateTime = new DateTime("2015-06-25T15:00:00+03:00");
+        DateTime endDateTime = new DateTime(DF.format(new Date(date*1000)));
         EventDateTime end = new EventDateTime()
                 .setDateTime(endDateTime)
                 .setTimeZone(getTimeZone());
         event.setEnd(end);
-
-        //List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event. This field is omitted for single events or instances of recurring events.
-       // String[] recurrence = new String[]{"RRULE:FREQ=DAILY;COUNT=2"};
-       // event.setRecurrence(Arrays.asList(recurrence));
-
-        /* send to email
-
-        EventAttendee[] attendees = new EventAttendee[]{
-                new EventAttendee().setEmail("saniokua@meta.ua"),
-                new EventAttendee().setEmail("sbrin@example.com"),
-        };
-        event.setAttendees(Arrays.asList(attendees));
-        */
-
-
-        /* Reminder
-
-        EventReminder[] reminderOverrides = new EventReminder[]{
-                new EventReminder().setMethod("email").setMinutes(24 * 60),
-                //new EventReminder().setMethod("sms").setMinutes(10),
-        };
-        Event.Reminders reminders = new Event.Reminders()
-                .setUseDefault(false)
-                .setOverrides(Arrays.asList(reminderOverrides));
-        event.setReminders(reminders);
-        */
 
         String calendarId = "primary";
         event = mActivity.mService.events().insert(calendarId, event).execute();
         System.out.printf("Event created: %s\n", event.getHtmlLink());
     }
 
-    public String getTimeZone(){
+    public String getTimeZone() {
         Calendar calendar = new GregorianCalendar();
         TimeZone timeZone = calendar.getTimeZone();
         String setZone = timeZone.getID();

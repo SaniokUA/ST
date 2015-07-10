@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:minWidth="1000dp"
     android:layout_gravity="center"
     android:gravity="center_horizontal"
     android:orientation="vertical">
@@ -75,30 +76,6 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/ControlPanel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:paddingTop="10dp">
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:text="Add Alarm signal"
-            android:textSize="18dp" />
-
-        <Switch
-            android:id="@+id/switchAlarm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onSwitch" />
-    </LinearLayout>
-
-    <LinearLayout
         android:id="@+id/AlarmWindow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -106,25 +83,27 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/addNote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingTop="10dp"
+            android:paddingBottom="5dp"
+            android:visibility="gone">
 
             <EditText
                 android:id="@+id/comment"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
                 android:hint="Write text" />
 
             <ImageButton
                 android:id="@+id/button"
                 android:layout_width="40dp"
-                android:layout_height="80dp"
-                android:src="@drawable/microphone" />
+                android:layout_height="40dp"
+                android:background="@drawable/ic_microphone" />
 
         </LinearLayout>
 
@@ -161,18 +140,21 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/close"
+            android:id="@+id/save"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:onClick="onSave"
             android:layout_marginRight="40dp"
-            android:onClick="onCLose"
-            android:background="@drawable/ic_close"/>
+            android:background="@drawable/ic_content_save"
+            />
+
 
         <ImageButton
             android:id="@+id/addText"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginRight="40dp"
+            android:onClick="addNoteAlarm"
             android:background="@drawable/ic_comment_plus_outline"
 />
         <ImageButton
@@ -185,12 +167,13 @@
             />
 
         <ImageButton
-            android:id="@+id/save"
+            android:id="@+id/close"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:onClick="onSave"
-            android:background="@drawable/ic_content_save"
-            />
+
+            android:onClick="onCLose"
+            android:background="@drawable/ic_close"/>
+
 
 
     </LinearLayout>
