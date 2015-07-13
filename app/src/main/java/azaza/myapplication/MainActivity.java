@@ -32,7 +32,6 @@ import azaza.myapplication.Libs.GetMiliDate;
 import azaza.myapplication.Libs.Swipe.SwipeDismissListViewTouchListener;
 import azaza.myapplication.Menu.MaterialMenu;
 import azaza.myapplication.Model.ListItem;
-import azaza.myapplication.Settings.LoadSettings;
 
 
 public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
@@ -63,7 +62,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
 
-        new LoadSettings(settings);
+
 
         emptyList = (TextView) findViewById(R.id.idListEmpty);
         emptyList.setVisibility(View.GONE);

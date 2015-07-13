@@ -7,17 +7,20 @@ import android.content.SharedPreferences;
  */
  public class EditSettings {
 
+    static LoadSettings loadSettings = LoadSettings.getInstance();
+
     public static void onnSyncGoogleCalendar(SharedPreferences settings){
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt(SettingsConst.PREF_ACCOUNT_SYNC_GOOGLE, 1);
         editor.commit();
-
+        loadSettings.loadPreferences(settings);
     }
 
     public static void offSyncGoogleCalendar(SharedPreferences settings){
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt(SettingsConst.PREF_ACCOUNT_SYNC_GOOGLE, 0);
         editor.commit();
+        loadSettings.loadPreferences(settings);
 
     }
 

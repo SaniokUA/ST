@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.widget.CompoundButton;
+import android.view.View;
 import android.widget.Switch;
 
 import azaza.myapplication.Settings.EditSettings;
@@ -27,18 +27,21 @@ public class SettingsActivity extends ActionBarActivity {
 
         settings = getPreferences(Context.MODE_PRIVATE);
 
+        LoadSettings loadSettings = LoadSettings.getInstance();
+        loadSettings.loadPreferences(settings);
+
         toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         syncGoogle = (Switch) findViewById(R.id.switchSync);
-        syncGoogle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                onChangeSwitchSync();
-            }
-        });
+//        syncGoogle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                onChangeSwitchSync();
+//            }
+//        });
 
 
 
@@ -51,7 +54,7 @@ public class SettingsActivity extends ActionBarActivity {
 
     }
 
-    public void onChangeSwitchSync() {
+    public void onChangeSwitchSync(View view) {
         if (LoadSettings.SYNC_CALENDAR == 1) {
             EditSettings.offSyncGoogleCalendar(settings);
         } else {
