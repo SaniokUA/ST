@@ -4,8 +4,9 @@
     <file url="file://$PROJECT_DIR$/app/src/main/java/azaza/myapplication/Adapter/ListItemAdapter.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/azaza/myapplication/CallActivity.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/azaza/myapplication/DataBase/DB.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/azaza/myapplication/Google/GoogleActivity.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/azaza/myapplication/Libs/Google/GoogleActivity.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/azaza/myapplication/MainActivity.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/azaza/myapplication/Menu/MaterialMenu.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/azaza/myapplication/Settings/LoadSettings.java" charset="UTF-8" />
   </component>
 </project>

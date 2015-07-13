@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.common.AccountPicker;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import azaza.myapplication.GlobalData.ApplicationData;
@@ -32,7 +31,6 @@ public class AccountActivity extends ActionBarActivity {
     RoundedImageView userImage;
     public static final int REQUEST_ACCOUNT_PICKER = 1000;
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    GoogleAccountCredential credential;
     UserData userData = new UserData();
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +38,13 @@ public class AccountActivity extends ActionBarActivity {
         setContentView(R.layout.activity_account);
 
         loginLayout = (LinearLayout) findViewById(R.id.loginUser);
-
-
         toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         final SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
-
-
         ApplicationData.setActivityId(this);
         final Google google = new Google();
 

@@ -40,7 +40,7 @@ import java.util.GregorianCalendar;
 
 import azaza.myapplication.DataBase.DB;
 import azaza.myapplication.GlobalData.PhoneData;
-import azaza.myapplication.Google.ApiAsyncTask;
+import azaza.myapplication.Libs.Google.AddEventCalendar;
 import azaza.myapplication.Libs.Contacts.GetContactPhoto;
 import azaza.myapplication.Libs.Image.SetImageRadius;
 import azaza.myapplication.Manager.MyAlarmManager;
@@ -179,7 +179,7 @@ public class CallActivity extends Activity {
         if(PhoneData.CONTACT == null ){
             PhoneData.CONTACT = "";
         }
-        new ApiAsyncTask(this, text, PhoneData.CONTACT + " "+ PhoneData.PHONE,  timeMili).execute();
+        new AddEventCalendar(this, text, PhoneData.CONTACT + " "+ PhoneData.PHONE,  timeMili).execute();
         this.finish();
         showToast();
 

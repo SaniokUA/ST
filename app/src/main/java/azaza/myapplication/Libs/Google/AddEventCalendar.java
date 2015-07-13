@@ -1,4 +1,4 @@
-package azaza.myapplication.Google;
+package azaza.myapplication.Libs.Google;
 
 import android.os.AsyncTask;
 
@@ -26,7 +26,7 @@ import azaza.myapplication.CallActivity;
  * An asynchronous task that handles the Google Calendar API call.
  * Placing the API calls in their own task ensures the UI stays responsive.
  */
-public class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
+public class AddEventCalendar extends AsyncTask<Void, Void, Void> {
     private CallActivity mActivity;
     String textNode;
     String contact;
@@ -43,7 +43,7 @@ public class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
      *
      * @param activity MainActivity that spawned this task.
      */
-    public ApiAsyncTask(CallActivity activity, String textNode, String contact, long date) {
+    public AddEventCalendar(CallActivity activity, String textNode, String contact, long date) {
         this.mActivity = activity;
         this.textNode = textNode;
         this.contact = contact;

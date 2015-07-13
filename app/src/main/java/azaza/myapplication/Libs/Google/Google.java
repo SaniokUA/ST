@@ -42,20 +42,6 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
 
     public void getUserAccounts(String googleAcc) {
 
-//        Account[] accountsAll = AccountManager.get(activity).getAccounts();
-//        Account google = null;
-//
-//        List<Account> googleAccounts = new ArrayList<>();
-//        for (Account account : accountsAll) {
-//            if (account.type.equals("com.google")) {
-//                googleAccounts.add(account);
-//            }
-//        }
-//
-//        if (googleAccounts.size() > 1) {
-//        } else if (googleAccounts.size() == 1) {
-//            google = googleAccounts.get(0);
-//        }
 
         if (googleAcc != null) {
             mGoogleApiClient = new GoogleApiClient.Builder(activity)

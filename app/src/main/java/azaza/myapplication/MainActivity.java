@@ -3,6 +3,7 @@ package azaza.myapplication;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import azaza.myapplication.Libs.GetMiliDate;
 import azaza.myapplication.Libs.Swipe.SwipeDismissListViewTouchListener;
 import azaza.myapplication.Menu.MaterialMenu;
 import azaza.myapplication.Model.ListItem;
+import azaza.myapplication.Settings.LoadSettings;
 
 
 public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
@@ -52,10 +54,16 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     GetMiliDate getMiliDate = new GetMiliDate();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+
+        new LoadSettings(settings);
 
         emptyList = (TextView) findViewById(R.id.idListEmpty);
         emptyList.setVisibility(View.GONE);
@@ -69,7 +77,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
 
         drawerResult = MaterialMenu.createCommonDrawer(this, toolbar);
-      //  MaterialMenu.handlerOnClick(drawerResult, this);
+        //  MaterialMenu.handlerOnClick(drawerResult, this);
 
         db.open();
         data = getModel();
