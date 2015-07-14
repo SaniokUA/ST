@@ -61,7 +61,7 @@ public class CallReceiver extends PhonecallReceiver {
 
         Intent i = new Intent();
         i.setClassName("azaza.myapplication", "azaza.myapplication.CallActivity");
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         ctx.startActivity(i);
 
 

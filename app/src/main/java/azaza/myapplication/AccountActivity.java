@@ -19,6 +19,8 @@ import com.makeramen.roundedimageview.RoundedImageView;
 import azaza.myapplication.GlobalData.ApplicationData;
 import azaza.myapplication.GlobalData.UserData;
 import azaza.myapplication.Libs.Google.Google;
+import azaza.myapplication.Settings.LoadSettings;
+import azaza.myapplication.Settings.SettingsConst;
 
 /**
  * Created by Alex on 03.07.2015.
@@ -30,8 +32,9 @@ public class AccountActivity extends ActionBarActivity {
     TextView email, name;
     RoundedImageView userImage;
     public static final int REQUEST_ACCOUNT_PICKER = 1000;
-    private static final String PREF_ACCOUNT_NAME = "accountName";
     UserData userData = new UserData();
+    static SharedPreferences settings;
+    static Google google;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,20 +47,26 @@ public class AccountActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        final SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+
+        settings = getPreferences(Context.MODE_PRIVATE);
+        LoadSettings loadSettings = LoadSettings.getInstance();
+        loadSettings.loadPreferences(settings);
+
+
         ApplicationData.setActivityId(this);
-        final Google google = new Google();
+        google = new Google();
 
         findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(settings.getString(PREF_ACCOUNT_NAME,null) == null){
+
+                findViewById(R.id.sign_in_button).setVisibility(View.GONE);
+                findViewById(R.id.progress_wheel).setVisibility(View.VISIBLE);
+
+                if (settings.getString(SettingsConst.PREF_ACCOUNT_NAME, null) == null) {
                     showGoogleAccountPicker();
                 }
 
-                google.signInWithGplus(settings.getString(PREF_ACCOUNT_NAME, null));
-                findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-                findViewById(R.id.progress_wheel).setVisibility(View.VISIBLE);
 
             }
         });
@@ -65,32 +74,40 @@ public class AccountActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 google.signOutFromGplus();
+                logoutUser(AccountActivity.this);
             }
         });
 
-        if (userData.isUserConnected()) {
-            loginUser(this);
-        }else{
-            logoutUser(this);
+        if (settings.getString(SettingsConst.PREF_ACCOUNT_NAME, null) != null) {
+            findViewById(R.id.sign_in_button).setVisibility(View.GONE);
+            findViewById(R.id.progress_wheel).setVisibility(View.VISIBLE);
+            google.signInWithGplus(settings.getString(SettingsConst.PREF_ACCOUNT_NAME, null));
+
         }
 
     }
 
 
     public void loginUser(Activity activity) {
-        activity.findViewById(R.id.progress_wheel).setVisibility(View.GONE);
-        activity.findViewById(R.id.loginUser).setVisibility(View.VISIBLE);
         email = (TextView) activity.findViewById(R.id.loginEmail);
         email.setText(userData.getEmail());
         name = (TextView) activity.findViewById(R.id.loginName);
         name.setText(userData.getUserName());
         userImage = (RoundedImageView) activity.findViewById(R.id.userImage);
         userImage.setImageBitmap(userData.getUserPhotoDrawble());
+        activity.findViewById(R.id.loginUser).setVisibility(View.VISIBLE);
     }
 
     public void logoutUser(Activity activity) {
+
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(SettingsConst.PREF_ACCOUNT_NAME, null);
+        editor.commit();
+
         activity.findViewById(R.id.loginUser).setVisibility(View.GONE);
+        activity.findViewById(R.id.progress_wheel).setVisibility(View.GONE);
         activity.findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
+
     }
 
 
@@ -103,13 +120,27 @@ public class AccountActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == REQUEST_ACCOUNT_PICKER && resultCode == RESULT_OK) {
+
             String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
             SharedPreferences settings =
                     getPreferences(Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = settings.edit();
-            editor.putString(PREF_ACCOUNT_NAME, accountName);
+            editor.putString(SettingsConst.PREF_ACCOUNT_NAME, accountName);
             editor.commit();
+
+            findViewById(R.id.progress_wheel).setVisibility(View.GONE);
+
+            if (accountName != null) {
+                google.signInWithGplus(accountName);
+                google.getProfileInformation();
+            }
+
+        } else {
+            findViewById(R.id.progress_wheel).setVisibility(View.GONE);
+            findViewById(R.id.loginUser).setVisibility(View.GONE);
+            findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
         }
     }
-
 }
+
+

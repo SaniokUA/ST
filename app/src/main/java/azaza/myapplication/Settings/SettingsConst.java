@@ -10,5 +10,6 @@ public class SettingsConst {
     public static final String PREF_ACCOUNT_SHOW_ALARM_WINDOW = "accountShowAlarmWindow";
     public static final String PREF_ACCOUNT_AUTO_SING_IN = "accountAutoSignIn";
     public static final String PREF_ACCOUNT_FIRST_START = "accountFirstStart";
+    public static final String PREF_ACCOUNT_NAME = "accountName";
 
 }

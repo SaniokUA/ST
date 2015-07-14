@@ -41,8 +41,6 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
     Activity activity = ApplicationData.getActivityId();
 
     public void getUserAccounts(String googleAcc) {
-
-
         if (googleAcc != null) {
             mGoogleApiClient = new GoogleApiClient.Builder(activity)
                     .addConnectionCallbacks(this)
@@ -104,7 +102,7 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
     /**
      * Fetching user's information name, email, profile pic
      */
-    private void getProfileInformation() {
+    public void getProfileInformation() {
         try {
             Person currentPerson = PeopleApi.getCurrentPerson(mGoogleApiClient);
             userData.setFirstName(currentPerson.getName().getGivenName());
@@ -119,7 +117,6 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
             userData.setUserPhoto(currentPerson.getImage().getUrl());
             new LoadProfileImage().execute(userData.getUserPhoto().substring(0,
                     userData.getUserPhoto().length() - 2) + 80);
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,7 +133,7 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
      */
     public void signInWithGplus(String accGoogle) {
         getUserAccounts(accGoogle);
-        userData.setUserConnected(true);
+        //userData.setUserConnected(true);
     }
 
     /**
@@ -195,8 +192,9 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
 
         @Override
         protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
             accountActivity.loginUser(activity);
+            super.onPostExecute(result);
+
         }
     }
 

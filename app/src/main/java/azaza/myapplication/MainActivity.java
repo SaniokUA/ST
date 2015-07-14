@@ -3,7 +3,6 @@ package azaza.myapplication;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -36,21 +35,15 @@ import azaza.myapplication.Model.ListItem;
 
 public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
 
-    private static final int CM_DELETE_ID = 1;
-
     ListView listView;
     DB db = new DB(this);
 
     List<ListItem> data;
     Toolbar toolbar;
     ListItemAdapter adapter;
-
     TextView emptyList;
-
     AlertDialog.Builder ad;
-
     private Drawer.Result drawerResult = null;
-
     GetMiliDate getMiliDate = new GetMiliDate();
 
 
@@ -59,24 +52,16 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
-
-
-
         emptyList = (TextView) findViewById(R.id.idListEmpty);
         emptyList.setVisibility(View.GONE);
         listView = (ListView) findViewById(R.id.listMain);
         listView.setTextFilterEnabled(true);
 
-
         toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
         drawerResult = MaterialMenu.createCommonDrawer(this, toolbar);
-        //  MaterialMenu.handlerOnClick(drawerResult, this);
 
         db.open();
         data = getModel();
@@ -115,7 +100,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         ad.setMessage("Do you want delete all items?"); // сообщение
         ad.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int arg1) {
-
                 db.delAllRec();
                 getSupportLoaderManager().initLoader(0, null, MainActivity.this);
             }
@@ -123,15 +107,9 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         ad.setNegativeButton("No", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int arg1) {
-
             }
         });
         ad.setCancelable(true);
-
-
-//        getSupportLoaderManager().initLoader(0, null, this);
-
-
     }
 
     @Override
@@ -153,11 +131,9 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
                 getSystemService(Context.SEARCH_SERVICE);
         MenuItem searchMenuItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchMenuItem.getActionView();
-//        ((EditText) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text)).setHintTextColor(getResources().getColor(R.Color.WHITE));
         EditText searchEdit = (EditText) searchView.getRootView().findViewById(R.id.search_src_text);
         searchEdit.setHintTextColor(Color.WHITE);
         searchEdit.setTextColor(Color.WHITE);
-
         searchView.setSearchableInfo(searchManager.
                 getSearchableInfo(getComponentName()));
         searchView.setSubmitButtonEnabled(true);
@@ -184,24 +160,16 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_clear) {
             ad.show();
-
-        }
-
-        if (id == R.id.action_search) {
-
         }
 
         if (id == R.id.action_exit) {
             this.finish();
         }
-
         return super.onOptionsItemSelected(item);
     }
-
 
     public List<ListItem> getModel() {
 
@@ -229,20 +197,17 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         return new ListItem(id, type, contact, phone, data, text, alarmSignal);
     }
 
-
     @Override
     protected void onStop() {
         db.close();
         this.finish();
         super.onStop();
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
     }
-
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -261,23 +226,16 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
-
     static class MyCursorLoader extends CursorLoader {
-
         DB db;
-
         public MyCursorLoader(Context context, DB db) {
             super(context);
             this.db = db;
         }
-
         @Override
         public Cursor loadInBackground() {
             Cursor cursor = db.getAllData();
             return cursor;
         }
-
     }
-
-
 }

@@ -13,30 +13,18 @@ public class LoadSettings extends Activity {
     public static int SHOW_ALARM_WINDOW = 1;
     public static int AUTO_SIGN_IN = 0;
     public static int FRIST_START = 0;
-    public static SharedPreferences settings;
 
-    private static LoadSettings instance = new LoadSettings();
+    private static LoadSettings instance = null;
 
     private LoadSettings() {
-//        this.settings = settings;
-//        try {
-//            FRIST_START =  settings.getInt(SettingsConst.PREF_ACCOUNT_FIRST_START, 0);
-//            if(FRIST_START == 0){
-//                savePreferences();
-//            }
-//        }catch (NullPointerException e){
-//            e.printStackTrace();
-//            savePreferences();
-//        }
-      //  new getSettingsInBackground().doInBackground();
-
     }
 
     public static LoadSettings getInstance() {
+        if(instance == null) {
+            instance = new LoadSettings();
+        }
         return instance;
     }
-
-
 
     public void savePreferences(SharedPreferences settings) {
         // получить доступ к объекту Editor, чтобы изменить общие настройки.
@@ -51,8 +39,6 @@ public class LoadSettings extends Activity {
     }
 
     public void loadPreferences(SharedPreferences settings) {
-
-
         try {
             FRIST_START =  settings.getInt(SettingsConst.PREF_ACCOUNT_FIRST_START, 0);
             if(FRIST_START == 0){
@@ -68,17 +54,5 @@ public class LoadSettings extends Activity {
         SHOW_ALARM_WINDOW = settings.getInt(SettingsConst.PREF_ACCOUNT_SHOW_ALARM_WINDOW, 1);
         AUTO_SIGN_IN = settings.getInt(SettingsConst.PREF_ACCOUNT_AUTO_SING_IN, 0);
     }
-
-//    private class getSettingsInBackground extends AsyncTask<Void, Void, Void> {
-//        @Override
-//        protected Void doInBackground(Void... params) {
-//            SYNC_CALENDAR = settings.getInt(SettingsConst.PREF_ACCOUNT_SYNC_GOOGLE, 0);
-//            ACTIVE_CALENDAR = settings.getString(SettingsConst.PREF_ACCOUNT_ACTIVE_CALENDAR, "primary");
-//            SHOW_ALARM_WINDOW = settings.getInt(SettingsConst.PREF_ACCOUNT_SHOW_ALARM_WINDOW, 1);
-//            AUTO_SIGN_IN = settings.getInt(SettingsConst.PREF_ACCOUNT_AUTO_SING_IN, 0);
-//            return null;
-//        }
-//    }
-
 
 }

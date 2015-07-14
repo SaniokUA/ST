@@ -30,28 +30,18 @@ public class SettingsActivity extends ActionBarActivity {
         LoadSettings loadSettings = LoadSettings.getInstance();
         loadSettings.loadPreferences(settings);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         syncGoogle = (Switch) findViewById(R.id.switchSync);
-//        syncGoogle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                onChangeSwitchSync();
-//            }
-//        });
-
-
 
         if (LoadSettings.SYNC_CALENDAR == 1) {
             syncGoogle.setChecked(true);
         } else {
             syncGoogle.setChecked(false);
         }
-
-
     }
 
     public void onChangeSwitchSync(View view) {
