@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -14,11 +15,23 @@ import android.widget.TextView;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.common.AccountPicker;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarList;
 import com.makeramen.roundedimageview.RoundedImageView;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import azaza.myapplication.GlobalData.ApplicationData;
 import azaza.myapplication.GlobalData.UserData;
 import azaza.myapplication.Libs.Google.Google;
+import azaza.myapplication.Model.GoogleCalendarsItem;
 import azaza.myapplication.Settings.LoadSettings;
 import azaza.myapplication.Settings.SettingsConst;
 
@@ -35,6 +48,8 @@ public class AccountActivity extends ActionBarActivity {
     UserData userData = new UserData();
     static SharedPreferences settings;
     static Google google;
+
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,8 +143,6 @@ public class AccountActivity extends ActionBarActivity {
             editor.putString(SettingsConst.PREF_ACCOUNT_NAME, accountName);
             editor.commit();
 
-            findViewById(R.id.progress_wheel).setVisibility(View.GONE);
-
             if (accountName != null) {
                 google.signInWithGplus(accountName);
                 google.getProfileInformation();
@@ -141,6 +154,15 @@ public class AccountActivity extends ActionBarActivity {
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
         }
     }
+
+
+
+
+
+
+
+
+
 }
 
 

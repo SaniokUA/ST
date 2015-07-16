@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -15,12 +16,27 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarList;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import azaza.myapplication.AccountActivity;
 import azaza.myapplication.GlobalData.ApplicationData;
 import azaza.myapplication.GlobalData.UserData;
+import azaza.myapplication.Model.GoogleCalendarsItem;
+import azaza.myapplication.R;
+import azaza.myapplication.Settings.LoadSettings;
 
 import static com.google.android.gms.plus.Plus.PeopleApi;
 
@@ -39,6 +55,15 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
     UserData userData = new UserData();
 
     Activity activity = ApplicationData.getActivityId();
+
+
+    List<GoogleCalendarsItem> listCalendar = new ArrayList();
+    CalendarList calendars;
+    public com.google.api.services.calendar.Calendar mService;
+    GoogleAccountCredential credential;
+    final HttpTransport transport = AndroidHttp.newCompatibleTransport();
+    final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     public void getUserAccounts(String googleAcc) {
         if (googleAcc != null) {
@@ -118,6 +143,8 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
             new LoadProfileImage().execute(userData.getUserPhoto().substring(0,
                     userData.getUserPhoto().length() - 2) + 80);
 
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -134,6 +161,20 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
     public void signInWithGplus(String accGoogle) {
         getUserAccounts(accGoogle);
         //userData.setUserConnected(true);
+
+
+
+        credential = GoogleAccountCredential.usingOAuth2(
+                activity.getApplicationContext(), Arrays.asList(SCOPES))
+                .setBackOff(new ExponentialBackOff())
+                .setSelectedAccountName(accGoogle);
+
+        mService = new com.google.api.services.calendar.Calendar.Builder(
+                transport, jsonFactory, credential)
+                .setApplicationName("Google Calendar API Android Quickstart")
+                .build();
+
+        new GetCalendars().execute();
     }
 
     /**
@@ -195,6 +236,37 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
             accountActivity.loginUser(activity);
             super.onPostExecute(result);
 
+        }
+    }
+
+    private class GetCalendars extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            try {
+                calendars = mService.calendarList().list().set("showHidden", true).execute();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            int calendarsSize = calendars.size();
+            for (int i = 0; i < calendarsSize; i++) {
+                listCalendar.add(get(calendars.getItems().get(i).getId(), calendars.getItems().get(i).getSummary()));
+            }
+            LoadSettings.CALENDAR_LIST = listCalendar;
+            activity.findViewById(R.id.progress_wheel).setVisibility(View.GONE);
+            super.onPostExecute(aVoid);
+        }
+
+        public GoogleCalendarsItem get(String id, String summary) {
+            return new GoogleCalendarsItem(id, summary);
         }
     }
 

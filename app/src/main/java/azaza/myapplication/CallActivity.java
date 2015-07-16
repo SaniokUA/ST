@@ -40,8 +40,8 @@ import java.util.GregorianCalendar;
 
 import azaza.myapplication.DataBase.DB;
 import azaza.myapplication.GlobalData.PhoneData;
-import azaza.myapplication.Libs.Google.AddEventCalendar;
 import azaza.myapplication.Libs.Contacts.GetContactPhoto;
+import azaza.myapplication.Libs.Google.AddEventCalendar;
 import azaza.myapplication.Libs.Image.SetImageRadius;
 import azaza.myapplication.Manager.MyAlarmManager;
 import azaza.myapplication.Model.Note;
@@ -379,4 +379,5 @@ public class CallActivity extends Activity {
     protected void onStop() {
         super.onStop();
     }
+
 }
