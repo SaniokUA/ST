@@ -27,7 +27,9 @@ import java.util.List;
 
 import azaza.myapplication.Adapter.ListItemAdapter;
 import azaza.myapplication.DataBase.DB;
+import azaza.myapplication.GlobalData.UserData;
 import azaza.myapplication.Libs.GetMiliDate;
+import azaza.myapplication.Libs.Google.LoadProfile;
 import azaza.myapplication.Libs.Swipe.SwipeDismissListViewTouchListener;
 import azaza.myapplication.Menu.MaterialMenu;
 import azaza.myapplication.Model.ListItem;
@@ -43,7 +45,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     ListItemAdapter adapter;
     TextView emptyList;
     AlertDialog.Builder ad;
-    private Drawer.Result drawerResult = null;
+    public Drawer.Result drawerResult = null;
     GetMiliDate getMiliDate = new GetMiliDate();
 
 
@@ -51,6 +53,8 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
 
         emptyList = (TextView) findViewById(R.id.idListEmpty);
         emptyList.setVisibility(View.GONE);
@@ -62,6 +66,10 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         drawerResult = MaterialMenu.createCommonDrawer(this, toolbar);
+
+        if(UserData.getUserName() == ""){
+            LoadProfile.onLoadProfile(this, toolbar);
+        }
 
         db.open();
         data = getModel();
@@ -200,7 +208,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     @Override
     protected void onStop() {
         db.close();
-        this.finish();
+        this.recreate();
         super.onStop();
     }
 
@@ -228,10 +236,12 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     static class MyCursorLoader extends CursorLoader {
         DB db;
+
         public MyCursorLoader(Context context, DB db) {
             super(context);
             this.db = db;
         }
+
         @Override
         public Cursor loadInBackground() {
             Cursor cursor = db.getAllData();

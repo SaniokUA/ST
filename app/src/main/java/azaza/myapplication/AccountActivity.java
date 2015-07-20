@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,24 +14,12 @@ import android.widget.TextView;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.common.AccountPicker;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.CalendarList;
 import com.makeramen.roundedimageview.RoundedImageView;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import azaza.myapplication.GlobalData.ApplicationData;
 import azaza.myapplication.GlobalData.UserData;
 import azaza.myapplication.Libs.Google.Google;
-import azaza.myapplication.Model.GoogleCalendarsItem;
-import azaza.myapplication.Settings.LoadSettings;
+import azaza.myapplication.Settings.EditSettings;
 import azaza.myapplication.Settings.SettingsConst;
 
 /**
@@ -48,8 +35,7 @@ public class AccountActivity extends ActionBarActivity {
     UserData userData = new UserData();
     static SharedPreferences settings;
     static Google google;
-
-
+    SharedPreferences.Editor editor;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,11 +48,7 @@ public class AccountActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-
-        settings = getPreferences(Context.MODE_PRIVATE);
-        LoadSettings loadSettings = LoadSettings.getInstance();
-        loadSettings.loadPreferences(settings);
-
+        settings = getSharedPreferences("CallManager", Context.MODE_PRIVATE);
 
         ApplicationData.setActivityId(this);
         google = new Google();
@@ -93,13 +75,18 @@ public class AccountActivity extends ActionBarActivity {
             }
         });
 
-        if (settings.getString(SettingsConst.PREF_ACCOUNT_NAME, null) != null) {
+
+        if (UserData.getUserName() != "") {
+            findViewById(R.id.sign_in_button).setVisibility(View.GONE);
+            findViewById(R.id.progress_wheel).setVisibility(View.GONE);
+            loginUser(this);
+        }
+
+        if (settings.getString(SettingsConst.PREF_ACCOUNT_NAME, null) != null && UserData.getUserName() == "") {
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
             findViewById(R.id.progress_wheel).setVisibility(View.VISIBLE);
             google.signInWithGplus(settings.getString(SettingsConst.PREF_ACCOUNT_NAME, null));
-
         }
-
     }
 
 
@@ -110,18 +97,23 @@ public class AccountActivity extends ActionBarActivity {
         name.setText(userData.getUserName());
         userImage = (RoundedImageView) activity.findViewById(R.id.userImage);
         userImage.setImageBitmap(userData.getUserPhotoDrawble());
+
+        activity.findViewById(R.id.progress_wheel).setVisibility(View.GONE);
         activity.findViewById(R.id.loginUser).setVisibility(View.VISIBLE);
+
     }
 
     public void logoutUser(Activity activity) {
 
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(SettingsConst.PREF_ACCOUNT_NAME, null);
-        editor.commit();
+        UserData.clearUserData();
 
         activity.findViewById(R.id.loginUser).setVisibility(View.GONE);
         activity.findViewById(R.id.progress_wheel).setVisibility(View.GONE);
         activity.findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
+
+
+        EditSettings.removeUserName(settings);
+//        EditSettings.userSignOut(settings);
 
     }
 
@@ -137,11 +129,11 @@ public class AccountActivity extends ActionBarActivity {
         if (requestCode == REQUEST_ACCOUNT_PICKER && resultCode == RESULT_OK) {
 
             String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-            SharedPreferences settings =
-                    getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putString(SettingsConst.PREF_ACCOUNT_NAME, accountName);
-            editor.commit();
+
+
+            EditSettings.saveUserName(settings, accountName);
+//            EditSettings.userSignIn(settings);
+
 
             if (accountName != null) {
                 google.signInWithGplus(accountName);
@@ -154,14 +146,6 @@ public class AccountActivity extends ActionBarActivity {
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
         }
     }
-
-
-
-
-
-
-
-
 
 }
 

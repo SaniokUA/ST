@@ -10,8 +10,6 @@ import azaza.myapplication.Model.GoogleCalendarsItem;
  */
 public class CalendarManager {
 
-    String calendarId;
-    String calendarName;
     public static List<GoogleCalendarsItem> listCalendars;
 
     public CalendarManager(List<GoogleCalendarsItem> listCalendars) {

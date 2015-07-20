@@ -123,12 +123,30 @@ public class UserData {
     public static void setUserPhotoDrawble(Bitmap userPhotoDrawble) {
         UserData.userPhotoDrawble = userPhotoDrawble;
     }
+
     public static boolean isUserConnected() {
         return userConnected;
     }
 
     public static void setUserConnected(boolean userConnected) {
         UserData.userConnected = userConnected;
+    }
+
+    public static void clearUserData() {
+        userID = "";
+        userName = "";
+        firstName = "";
+        lastName = "";
+        emailId = "";
+        Sex = "";
+        SocketId = "";
+        Email = "";
+        Location = "";
+        Age = "";
+        Language = "";
+        userPhoto = "";
+        userPhotoDrawble = null;
+        userConnected = false;
     }
 
 }

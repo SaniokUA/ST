@@ -29,10 +29,7 @@ public class SettingsActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        settings = getPreferences(Context.MODE_PRIVATE);
-
-        LoadSettings loadSettings = LoadSettings.getInstance();
-        loadSettings.loadPreferences(settings);
+        settings = getSharedPreferences("CallManager", Context.MODE_PRIVATE);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -50,8 +47,6 @@ public class SettingsActivity extends ActionBarActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         selectCalendar.setAdapter(adapter);
-
-
 
         if (LoadSettings.SYNC_CALENDAR == 1) {
             syncGoogle.setChecked(true);

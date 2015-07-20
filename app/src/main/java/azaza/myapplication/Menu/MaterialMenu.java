@@ -6,26 +6,31 @@ package azaza.myapplication.Menu;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.mikepenz.iconics.typeface.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import azaza.myapplication.AboutActivity;
 import azaza.myapplication.AccountActivity;
+import azaza.myapplication.GlobalData.UserData;
 import azaza.myapplication.MainActivity;
 import azaza.myapplication.R;
-import azaza.myapplication.AboutActivity;
 import azaza.myapplication.SettingsActivity;
 
 
 public class MaterialMenu {
-    public static final int ACCOUNTS_LOGOUT_ID = 110;
+
+    private static TextView email;
+    private static ImageView userImage;
+
 
 
     public static void hideSoftKeyboard(Activity activity) {
@@ -39,7 +44,7 @@ public class MaterialMenu {
     }
 
 
-    public static Drawer.Result createCommonDrawer(final ActionBarActivity activity, Toolbar toolbar) {
+    public static Drawer.Result createCommonDrawer(final Activity activity, Toolbar toolbar) {
 
         final Drawer.Result drawerResult = new Drawer()
                 .withActivity(activity)
@@ -98,6 +103,14 @@ public class MaterialMenu {
                     }
                 })
                 .build();
+
+
+        userImage = (ImageView) drawerResult.getHeader().findViewById(R.id.userImageMenu);
+        userImage.setImageBitmap(UserData.getUserPhotoDrawble());
+
+        email = (TextView) drawerResult.getHeader(). findViewById(R.id.loginEmailMenu);
+        email.setText(UserData.Email);
+
 
         return drawerResult;
     }

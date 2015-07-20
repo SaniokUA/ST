@@ -2,6 +2,7 @@ package azaza.myapplication.Libs.Google;
 
 import android.app.Activity;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -11,8 +12,6 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -24,35 +23,49 @@ import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarList;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import azaza.myapplication.AccountActivity;
-import azaza.myapplication.GlobalData.ApplicationData;
 import azaza.myapplication.GlobalData.UserData;
+import azaza.myapplication.Menu.MaterialMenu;
 import azaza.myapplication.Model.GoogleCalendarsItem;
 import azaza.myapplication.Settings.LoadSettings;
 
 import static com.google.android.gms.plus.Plus.PeopleApi;
 
 /**
- * Created by Alex on 19.05.2015.
+ * Created by Alex on 17.07.2015.
  */
+public class GoogleAuth extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-public class Google extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+    private static GoogleAuth instance = null;
+    Activity activity;
+    android.support.v7.widget.Toolbar toolbar;
+
+    private GoogleAuth(Activity activity, android.support.v7.widget.Toolbar toolbar) {
+        this.activity = activity;
+        this.toolbar = toolbar;
+
+    }
+
+    public static GoogleAuth getInstance(Activity activity, android.support.v7.widget.Toolbar toolbar) {
+        if (instance == null) {
+            instance = new GoogleAuth(activity, toolbar);
+        }
+        return instance;
+    }
 
     private static final int RC_SIGN_IN = 100;
     public GoogleApiClient mGoogleApiClient;
     private ConnectionResult mConnectionResult;
     private boolean mIntentInProgress;
-    AccountActivity accountActivity = new AccountActivity();
 
     UserData userData = new UserData();
 
-    Activity activity = ApplicationData.getActivityId();
+
+    public static SharedPreferences settings;
 
 
     List<GoogleCalendarsItem> listCalendar = new ArrayList();
@@ -116,9 +129,7 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
     public void onConnected(Bundle arg0) {
 
         UserData.userConnected = true;
-
         getProfileInformation();
-
 
     }
 
@@ -132,12 +143,7 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
             userData.setFirstName(currentPerson.getName().getGivenName());
             userData.setLastName(currentPerson.getName().getFamilyName());
             userData.setUserName(currentPerson.getDisplayName());
-//            userData.setUserID(currentPerson.getId());
-//            userData.Sex = String.valueOf(currentPerson.getGender());
-//            userData.Location = currentPerson.getCurrentLocation();
-//            userData.Age = currentPerson.getBirthday();
             userData.setEmail(Plus.AccountApi.getAccountName(mGoogleApiClient));
-//          userData.Language = currentPerson.getLanguage();
             userData.setUserPhoto(currentPerson.getImage().getUrl());
             new LoadProfileImage().execute(userData.getUserPhoto().substring(0,
                     userData.getUserPhoto().length() - 2) + 80);
@@ -155,11 +161,9 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
     /**
      * Sign-in into google
      */
+
+
     public void signInWithGplus(String accGoogle) {
-        getUserAccounts(accGoogle);
-        //userData.setUserConnected(true);
-
-
 
         credential = GoogleAccountCredential.usingOAuth2(
                 activity.getApplicationContext(), Arrays.asList(SCOPES))
@@ -171,43 +175,28 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
                 .setApplicationName("Google Calendar API Android Quickstart")
                 .build();
 
-        new GetCalendars().execute();
+        getUserAccounts(accGoogle);
+
     }
 
     /**
      * Sign-out from google
      */
     public void signOutFromGplus() {
-        if (mGoogleApiClient==null) {
-            accountActivity.logoutUser(activity);
+        if (mGoogleApiClient == null) {
         } else {
             Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-           // mGoogleApiClient.disconnect();
-            accountActivity.logoutUser(activity);
+            mGoogleApiClient.disconnect();
         }
     }
 
-    /**
-     * Revoking access from google
-     */
-    public void revokeGplusAccess() {
-        if (mGoogleApiClient.isConnected()) {
-            Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-            Plus.AccountApi.revokeAccessAndDisconnect(mGoogleApiClient)
-                    .setResultCallback(new ResultCallback<Status>() {
-                        @Override
-                        public void onResult(Status arg0) {
-                            mGoogleApiClient.connect();
-                        }
-
-                    });
-        }
-    }
 
     public class LoadProfileImage extends AsyncTask<String, String, Void> {
 
         @Override
         protected void onPreExecute() {
+
+
             super.onPreExecute();
         }
 
@@ -219,6 +208,9 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
                 InputStream in = new java.net.URL(urldisplay).openStream();
                 mIcon = BitmapFactory.decodeStream(in);
                 userData.setUserPhotoDrawble(mIcon);
+
+                calendars = mService.calendarList().list().set("showHidden", true).execute();
+
             } catch (Exception e) {
                 Log.e("Error", e.getMessage());
                 e.printStackTrace();
@@ -228,40 +220,24 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
 
         @Override
         protected void onPostExecute(Void result) {
-            accountActivity.loginUser(activity);
-            super.onPostExecute(result);
 
-        }
-    }
+            MaterialMenu.createCommonDrawer(activity, toolbar);
 
-    private class GetCalendars extends AsyncTask<Void, Void, Void> {
 
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            try {
-                calendars = mService.calendarList().list().set("showHidden", true).execute();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
             int calendarsSize = calendars.size();
             for (int i = 0; i < calendarsSize; i++) {
                 listCalendar.add(get(calendars.getItems().get(i).getId(), calendars.getItems().get(i).getSummary()));
             }
             LoadSettings.CALENDAR_LIST = listCalendar;
-            super.onPostExecute(aVoid);
+
+            super.onPostExecute(result);
         }
 
         public GoogleCalendarsItem get(String id, String summary) {
             return new GoogleCalendarsItem(id, summary);
         }
+
     }
+
 
 }
