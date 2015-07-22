@@ -186,7 +186,7 @@ public class GoogleAuth extends Activity implements GoogleApiClient.ConnectionCa
         if (mGoogleApiClient == null) {
         } else {
             Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-            mGoogleApiClient.disconnect();
+         //   mGoogleApiClient.disconnect();
         }
     }
 

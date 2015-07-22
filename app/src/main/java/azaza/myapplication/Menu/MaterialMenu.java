@@ -105,9 +105,9 @@ public class MaterialMenu {
                 .build();
 
 
+
         userImage = (ImageView) drawerResult.getHeader().findViewById(R.id.userImageMenu);
         userImage.setImageBitmap(UserData.getUserPhotoDrawble());
-
         email = (TextView) drawerResult.getHeader(). findViewById(R.id.loginEmailMenu);
         email.setText(UserData.Email);
 

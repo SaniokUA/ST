@@ -40,8 +40,6 @@ public class MyAlarmService extends Service {
     @Override
     public void onCreate() {
         settings = PreferenceManager.getDefaultSharedPreferences(this);
-        LoadSettings loadSettings = LoadSettings.getInstance();
-    //    loadSettings.loadPreferences(settings);
 
         // TODO Auto-generated method stub
         super.onCreate();

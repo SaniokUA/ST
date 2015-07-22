@@ -33,6 +33,7 @@ import azaza.myapplication.Libs.Google.LoadProfile;
 import azaza.myapplication.Libs.Swipe.SwipeDismissListViewTouchListener;
 import azaza.myapplication.Menu.MaterialMenu;
 import azaza.myapplication.Model.ListItem;
+import azaza.myapplication.Settings.LoadSettings;
 
 
 public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
@@ -54,7 +55,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        loadSettings();
 
         emptyList = (TextView) findViewById(R.id.idListEmpty);
         emptyList.setVisibility(View.GONE);
@@ -203,6 +204,16 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     public ListItem get(int id, String type, String contact, String phone, String data, String text, String alarmSignal) {
         return new ListItem(id, type, contact, phone, data, text, alarmSignal);
+    }
+
+    public void loadSettings() {
+        final LoadSettings loadSettings = LoadSettings.getInstance(this);
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                loadSettings.loadPreferences();
+            }
+        });
+        t.start();
     }
 
     @Override

@@ -1,5 +1,7 @@
 package azaza.myapplication.Libs.Google;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -21,6 +23,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import azaza.myapplication.CallActivity;
+import azaza.myapplication.Settings.SettingsConst;
 
 /**
  * An asynchronous task that handles the Google Calendar API call.
@@ -86,7 +89,9 @@ public class AddEventCalendar extends AsyncTask<Void, Void, Void> {
         // List the next 10 events from the primary calendar.
         DateTime now = new DateTime(System.currentTimeMillis());
         List<String> eventStrings = new ArrayList<String>();
-        Events events = mActivity.mService.events().list("primary")
+        SharedPreferences settings = mActivity.getSharedPreferences("CallManager", Context.MODE_PRIVATE);
+        String a = settings.getString(SettingsConst.PREF_ACCOUNT_GOOGLE_CALENDAR_ID, "primary");
+        Events events = mActivity.mService.events().list(settings.getString(SettingsConst.PREF_ACCOUNT_GOOGLE_CALENDAR_ID, "primary"))
                 .setMaxResults(10)
                 .setTimeMin(now)
                 .setOrderBy("startTime")
@@ -127,8 +132,8 @@ public class AddEventCalendar extends AsyncTask<Void, Void, Void> {
                 .setDateTime(endDateTime)
                 .setTimeZone(getTimeZone());
         event.setEnd(end);
-
-        String calendarId = "primary";
+        SharedPreferences settings = mActivity.getSharedPreferences("CallManager", Context.MODE_PRIVATE);
+        String calendarId = settings.getString(SettingsConst.PREF_ACCOUNT_GOOGLE_CALENDAR_ID, "primary");
         event = mActivity.mService.events().insert(calendarId, event).execute();
         System.out.printf("Event created: %s\n", event.getHtmlLink());
     }

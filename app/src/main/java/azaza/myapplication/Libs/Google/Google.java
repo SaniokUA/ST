@@ -1,7 +1,9 @@
 package azaza.myapplication.Libs.Google;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -33,7 +35,9 @@ import java.util.List;
 import azaza.myapplication.AccountActivity;
 import azaza.myapplication.GlobalData.ApplicationData;
 import azaza.myapplication.GlobalData.UserData;
+import azaza.myapplication.Libs.Image.ConvertImageBase64;
 import azaza.myapplication.Model.GoogleCalendarsItem;
+import azaza.myapplication.Settings.EditSettings;
 import azaza.myapplication.Settings.LoadSettings;
 
 import static com.google.android.gms.plus.Plus.PeopleApi;
@@ -215,10 +219,12 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
         protected Void doInBackground(String... urls) {
             String urldisplay = urls[0];
             Bitmap mIcon = null;
+            InputStream in;
             try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
+                in = new java.net.URL(urldisplay).openStream();
                 mIcon = BitmapFactory.decodeStream(in);
                 userData.setUserPhotoDrawble(mIcon);
+                ConvertImageBase64.saveImageInBase64(new java.net.URL(urldisplay).openStream(), activity);
             } catch (Exception e) {
                 Log.e("Error", e.getMessage());
                 e.printStackTrace();
@@ -256,6 +262,14 @@ public class Google extends Activity implements GoogleApiClient.ConnectionCallba
                 listCalendar.add(get(calendars.getItems().get(i).getId(), calendars.getItems().get(i).getSummary()));
             }
             LoadSettings.CALENDAR_LIST = listCalendar;
+            SharedPreferences settings = activity.getSharedPreferences("CallManager", Context.MODE_PRIVATE);
+            try {
+                EditSettings.saveUserCalendars(settings, listCalendar);
+                EditSettings.loadUserCalendars(settings);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             super.onPostExecute(aVoid);
         }
 

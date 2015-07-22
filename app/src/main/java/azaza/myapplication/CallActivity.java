@@ -47,6 +47,7 @@ import azaza.myapplication.Manager.MyAlarmManager;
 import azaza.myapplication.Model.Note;
 import azaza.myapplication.Reciver.MyAlarmReceiver;
 import azaza.myapplication.Settings.LoadSettings;
+import azaza.myapplication.Settings.SettingsConst;
 
 /**
  * Created by Alex on 05.06.2015.
@@ -81,7 +82,6 @@ public class CallActivity extends Activity {
     public static final int REQUEST_ACCOUNT_PICKER = 1000;
     public static final int REQUEST_AUTHORIZATION = 1001;
     public static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
-    private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     @Override
@@ -151,18 +151,18 @@ public class CallActivity extends Activity {
         }
 
 
-        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences("CallManager", Context.MODE_PRIVATE);
         credential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff())
-                .setSelectedAccountName(settings.getString(PREF_ACCOUNT_NAME, null));
+                .setSelectedAccountName(settings.getString(SettingsConst.PREF_ACCOUNT_NAME, null));
 
         mService = new com.google.api.services.calendar.Calendar.Builder(
                 transport, jsonFactory, credential)
                 .setApplicationName("Google Calendar API Android Quickstart")
                 .build();
 
-        if (settings.getString(PREF_ACCOUNT_NAME, null) == null) {
+        if (settings.getString(SettingsConst.PREF_ACCOUNT_NAME, null) == null) {
             chooseAccount();
         }
 
@@ -312,10 +312,9 @@ public class CallActivity extends Activity {
                             data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
                         credential.setSelectedAccountName(accountName);
-                        SharedPreferences settings =
-                                getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences settings = getSharedPreferences("CallManager", Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.putString(SettingsConst.PREF_ACCOUNT_NAME, accountName);
                         editor.commit();
                         //   refreshResults();
                     }

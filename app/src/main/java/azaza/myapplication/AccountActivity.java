@@ -35,7 +35,6 @@ public class AccountActivity extends ActionBarActivity {
     UserData userData = new UserData();
     static SharedPreferences settings;
     static Google google;
-    SharedPreferences.Editor editor;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,8 +62,6 @@ public class AccountActivity extends ActionBarActivity {
                 if (settings.getString(SettingsConst.PREF_ACCOUNT_NAME, null) == null) {
                     showGoogleAccountPicker();
                 }
-
-
             }
         });
         findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
@@ -111,10 +108,9 @@ public class AccountActivity extends ActionBarActivity {
         activity.findViewById(R.id.progress_wheel).setVisibility(View.GONE);
         activity.findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
 
-
-        EditSettings.removeUserName(settings);
-//        EditSettings.userSignOut(settings);
-
+        EditSettings.deleteUserName(settings);
+        EditSettings.deleteUserImage(settings);
+        EditSettings.deleteUserCalendars(settings);
     }
 
 
@@ -127,13 +123,8 @@ public class AccountActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == REQUEST_ACCOUNT_PICKER && resultCode == RESULT_OK) {
-
             String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-
-
             EditSettings.saveUserName(settings, accountName);
-//            EditSettings.userSignIn(settings);
-
 
             if (accountName != null) {
                 google.signInWithGplus(accountName);
