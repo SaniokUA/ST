@@ -8,7 +8,6 @@ import java.util.List;
 
 import azaza.myapplication.GlobalData.PhoneData;
 import azaza.myapplication.Libs.Contacts.GetContactInfo;
-import azaza.myapplication.MainActivity;
 import azaza.myapplication.Model.ContactItem;
 
 public class CallReceiver extends PhonecallReceiver {
@@ -34,9 +33,6 @@ public class CallReceiver extends PhonecallReceiver {
 
         PhoneData.DATE = end.toString();
         PhoneData.myTYPE = "0";
-
-        MainActivity mainActivity = new MainActivity();
-        mainActivity.recreate();
 
         Intent i = new Intent();
         i.setClassName("azaza.myapplication", "azaza.myapplication.CallActivity");

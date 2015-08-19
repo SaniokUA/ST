@@ -3,8 +3,10 @@ package azaza.myapplication;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -17,9 +19,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
+import com.baoyz.swipemenulistview.SwipeMenu;
+import com.baoyz.swipemenulistview.SwipeMenuCreator;
+import com.baoyz.swipemenulistview.SwipeMenuItem;
+import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.mikepenz.materialdrawer.Drawer;
 
 import java.util.ArrayList;
@@ -30,7 +35,6 @@ import azaza.myapplication.DataBase.DB;
 import azaza.myapplication.GlobalData.UserData;
 import azaza.myapplication.Libs.GetMiliDate;
 import azaza.myapplication.Libs.Google.LoadProfile;
-import azaza.myapplication.Libs.Swipe.SwipeDismissListViewTouchListener;
 import azaza.myapplication.Menu.MaterialMenu;
 import azaza.myapplication.Model.ListItem;
 import azaza.myapplication.Settings.LoadSettings;
@@ -38,7 +42,7 @@ import azaza.myapplication.Settings.LoadSettings;
 
 public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
 
-    ListView listView;
+    SwipeMenuListView listView;
     DB db = new DB(this);
 
     List<ListItem> data;
@@ -59,7 +63,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         emptyList = (TextView) findViewById(R.id.idListEmpty);
         emptyList.setVisibility(View.GONE);
-        listView = (ListView) findViewById(R.id.listMain);
+        listView = (SwipeMenuListView) findViewById(R.id.listMain);
         listView.setTextFilterEnabled(true);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
@@ -68,7 +72,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         drawerResult = MaterialMenu.createCommonDrawer(this, toolbar);
 
-        if(UserData.getUserName() == ""){
+        if (UserData.getUserName() == "") {
             LoadProfile.onLoadProfile(this, toolbar);
         }
 
@@ -77,31 +81,96 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         adapter = new ListItemAdapter(this, data);
         listView.setAdapter(adapter);
 
-        SwipeDismissListViewTouchListener touchListener =
-                new SwipeDismissListViewTouchListener(
-                        listView,
-                        new SwipeDismissListViewTouchListener.DismissCallbacks() {
-                            @Override
-                            public boolean canDismiss(int position) {
-                                return true;
-                            }
+        SwipeMenuCreator creator = new SwipeMenuCreator() {
 
-                            @Override
-                            public void onDismiss(ListView listView, int[] reverseSortedPositions) {
-                                for (int position : reverseSortedPositions) {
-                                    int itemId = adapter.getItem(position).getId();
-                                    db.delRec(itemId);
-                                    adapter.remove(adapter.getItem(position));
-                                    adapter = new ListItemAdapter(MainActivity.this, getModel());
-                                    listView.setAdapter(adapter);
-                                }
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-        listView.setOnTouchListener(touchListener);
-        // Setting this scroll listener is required to ensure that during ListView scrolling,
-        // we don't look for swipes.
-        listView.setOnScrollListener(touchListener.makeScrollListener());
+            @Override
+            public void create(SwipeMenu menu) {
+                // create "call" item
+                SwipeMenuItem callItem = new SwipeMenuItem(
+                        getApplicationContext());
+                callItem.setWidth((100));
+                callItem.setIcon(R.drawable.ic_phone);
+                menu.addMenuItem(callItem);
+
+                // create "delete alarm" item
+                SwipeMenuItem deleteAlarmItem = new SwipeMenuItem(
+                        getApplicationContext());
+                deleteAlarmItem.setWidth((100));
+                deleteAlarmItem.setIcon(R.drawable.ic_alarm);
+                menu.addMenuItem(deleteAlarmItem);
+
+                // create "delete" item
+                SwipeMenuItem deleteItem = new SwipeMenuItem(
+                        getApplicationContext());
+                deleteItem.setWidth((100));
+                deleteItem.setIcon(R.drawable.ic_delete_dark);
+                menu.addMenuItem(deleteItem);
+            }
+        };
+
+
+// set creator
+        listView.setMenuCreator(creator);
+
+        listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                switch (index) {
+                    case 0:
+                        Intent callIntent = new Intent(Intent.ACTION_CALL);
+                        callIntent.setData(Uri.parse("tel:" + adapter.getItem(position).getNumber()));
+                        startActivity(callIntent);
+                        break;
+
+                    case 1:
+
+                        break;
+
+                    case 2:
+                        // delete
+                        int itemId = adapter.getItem(position).getId();
+                        db.delRec(itemId);
+                        adapter.remove(adapter.getItem(position));
+                        adapter = new ListItemAdapter(MainActivity.this, getModel());
+                        listView.setAdapter(adapter);
+                        adapter.notifyDataSetChanged();
+                        break;
+                }
+                // false : close the menu; true : not close the menu
+                return false;
+            }
+        });
+
+
+        listView.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
+
+
+        //old wersion swipe-delete item
+//        SwipeDismissListViewTouchListener touchListener =
+//                new SwipeDismissListViewTouchListener(
+//                        listView,
+//                        new SwipeDismissListViewTouchListener.DismissCallbacks() {
+//                            @Override
+//                            public boolean canDismiss(int position) {
+//                                return true;
+//                            }
+//
+//                            @Override
+//                            public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+//                                for (int position : reverseSortedPositions) {
+//                                    int itemId = adapter.getItem(position).getId();
+//                                    db.delRec(itemId);
+//                                    adapter.remove(adapter.getItem(position));
+//                                    adapter = new ListItemAdapter(MainActivity.this, getModel());
+//                                    listView.setAdapter(adapter);
+//                                }
+//                                adapter.notifyDataSetChanged();
+//                            }
+//                        });
+//        listView.setOnTouchListener(touchListener);
+//        // Setting this scroll listener is required to ensure that during ListView scrolling,
+//        // we don't look for swipes.
+//        listView.setOnScrollListener(touchListener.makeScrollListener());
 
         ad = new AlertDialog.Builder(this);
         ad.setTitle("Delete all items");  // заголовок
