@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import azaza.myapplication.Adapter.ListItemAdapter;
-import azaza.myapplication.DataBase.DB;
+import azaza.myapplication.DataBase.DataBaseProvider;
 import azaza.myapplication.GlobalData.UserData;
 import azaza.myapplication.Libs.GetMiliDate;
 import azaza.myapplication.Libs.Google.LoadProfile;
@@ -43,7 +43,8 @@ import azaza.myapplication.Settings.LoadSettings;
 public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
 
     SwipeMenuListView listView;
-    DB db = new DB(this);
+    DataBaseProvider db = new DataBaseProvider();
+
 
     List<ListItem> data;
     Toolbar toolbar;
@@ -53,6 +54,9 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     public Drawer.Result drawerResult = null;
     GetMiliDate getMiliDate = new GetMiliDate();
 
+    DataBaseProvider dataBaseProvider = new DataBaseProvider();
+
+    public static Context ctx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +64,8 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
 
         loadSettings();
+        ctx = this;
+        getSupportLoaderManager().initLoader(1, null, this);
 
         emptyList = (TextView) findViewById(R.id.idListEmpty);
         emptyList.setVisibility(View.GONE);
@@ -76,7 +82,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
             LoadProfile.onLoadProfile(this, toolbar);
         }
 
-        db.open();
         data = getModel();
         adapter = new ListItemAdapter(this, data);
         listView.setAdapter(adapter);
@@ -129,7 +134,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
                     case 2:
                         // delete
                         int itemId = adapter.getItem(position).getId();
-                        db.delRec(itemId);
+                        db.delRec(MainActivity.this,itemId);
                         adapter.remove(adapter.getItem(position));
                         adapter = new ListItemAdapter(MainActivity.this, getModel());
                         listView.setAdapter(adapter);
@@ -145,40 +150,13 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         listView.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
 
 
-        //old wersion swipe-delete item
-//        SwipeDismissListViewTouchListener touchListener =
-//                new SwipeDismissListViewTouchListener(
-//                        listView,
-//                        new SwipeDismissListViewTouchListener.DismissCallbacks() {
-//                            @Override
-//                            public boolean canDismiss(int position) {
-//                                return true;
-//                            }
-//
-//                            @Override
-//                            public void onDismiss(ListView listView, int[] reverseSortedPositions) {
-//                                for (int position : reverseSortedPositions) {
-//                                    int itemId = adapter.getItem(position).getId();
-//                                    db.delRec(itemId);
-//                                    adapter.remove(adapter.getItem(position));
-//                                    adapter = new ListItemAdapter(MainActivity.this, getModel());
-//                                    listView.setAdapter(adapter);
-//                                }
-//                                adapter.notifyDataSetChanged();
-//                            }
-//                        });
-//        listView.setOnTouchListener(touchListener);
-//        // Setting this scroll listener is required to ensure that during ListView scrolling,
-//        // we don't look for swipes.
-//        listView.setOnScrollListener(touchListener.makeScrollListener());
-
         ad = new AlertDialog.Builder(this);
         ad.setTitle("Delete all items");  // заголовок
         ad.setIcon(R.drawable.ic_delete_dark);
         ad.setMessage("Do you want delete all items?"); // сообщение
         ad.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int arg1) {
-                db.delAllRec();
+                db.delAllRec(MainActivity.this);
                 getSupportLoaderManager().initLoader(0, null, MainActivity.this);
             }
         });
@@ -252,7 +230,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     public List<ListItem> getModel() {
 
         List<ListItem> list = new ArrayList<ListItem>();
-        Cursor c = db.getAllData();
+        Cursor c = dataBaseProvider.getAllData(this);
         if (c.getCount() == 0) {
             listView.setVisibility(View.GONE);
             emptyList.setVisibility(View.VISIBLE);
@@ -287,8 +265,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     @Override
     protected void onStop() {
-        db.close();
-        this.recreate();
+      //  this.recreate();
         super.onStop();
     }
 
@@ -300,7 +277,8 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        return new MyCursorLoader(this, db);
+        return new CursorLoader(this, DataBaseProvider.CONTACT_CONTENT_URI, null, null, null, null);
+
     }
 
     @Override
@@ -315,16 +293,16 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     }
 
     static class MyCursorLoader extends CursorLoader {
-        DB db;
+        DataBaseProvider db;
 
-        public MyCursorLoader(Context context, DB db) {
+        public MyCursorLoader(Context context, DataBaseProvider db) {
             super(context);
             this.db = db;
         }
 
         @Override
         public Cursor loadInBackground() {
-            Cursor cursor = db.getAllData();
+            Cursor cursor = db.getAllData(ctx);
             return cursor;
         }
     }

@@ -142,6 +142,9 @@
 
         <service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
 
+        <provider
+            android:name="azaza.myapplication.DataBase.DataBaseProvider"
+            android:authorities="futureplans.provider" />
 
     </application>
 

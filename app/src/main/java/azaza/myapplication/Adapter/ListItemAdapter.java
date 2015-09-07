@@ -38,7 +38,6 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
         this.filteredModelItemsArray = new ArrayList<ListItem>();
         filteredModelItemsArray.addAll(allModelItemsArray);
-
     }
 
     @Override
@@ -48,8 +47,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
         View view = inflator.inflate(R.layout.list_item, null);
 
         String id = String.valueOf(filteredModelItemsArray.get(position).getId());
-
-        ((TextView) view.findViewById(R.id.listId)).setText(id);
+         ((TextView) view.findViewById(R.id.listId)).setText(id);
 
         if (filteredModelItemsArray.get(position).getContact() != "" && filteredModelItemsArray.get(position).getContact() != null) {
             ((TextView) view.findViewById(R.id.listContact)).setVisibility(View.VISIBLE);
@@ -85,13 +83,13 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
     @Override
     public Filter getFilter() {
         if (textFilter == null) {
-            textFilter = new PlanetFilter();
+            textFilter = new ContactFilter();
         }
 
         return textFilter;
     }
 
-    private class PlanetFilter extends Filter {
+    private class ContactFilter extends Filter {
 
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
@@ -104,7 +102,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
                 for (int i = 0, l = allModelItemsArray.size(); i < l; i++) {
                     ListItem m = allModelItemsArray.get(i);
                     try {
-                        if (m.getContact().toLowerCase().contains(constraint)) {
+                        if (m.getText().toLowerCase().contains(constraint)) {
                             filteredItems.add(m);
                         }
                     } catch (Exception exception) {
@@ -122,16 +120,17 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
             return result;
         }
 
+
         @SuppressWarnings("unchecked")
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
 
             filteredModelItemsArray = (ArrayList<ListItem>) results.values;
-            notifyDataSetChanged();
             clear();
+           // notifyDataSetChanged();
             for (int i = 0, l = filteredModelItemsArray.size(); i < l; i++)
                 add(filteredModelItemsArray.get(i));
-            notifyDataSetInvalidated();
+            notifyDataSetChanged();
         }
     }
 }
