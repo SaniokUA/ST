@@ -1,7 +1,6 @@
 package azaza.myapplication.Adapter;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import azaza.myapplication.Libs.Contacts.GetContactPhoto;
 import azaza.myapplication.Model.ListItem;
 import azaza.myapplication.R;
 
@@ -47,35 +45,15 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
         View view = inflator.inflate(R.layout.list_item, null);
 
         String id = String.valueOf(filteredModelItemsArray.get(position).getId());
-         ((TextView) view.findViewById(R.id.listId)).setText(id);
+        ((TextView) view.findViewById(R.id.listId)).setText(id);
 
-        if (filteredModelItemsArray.get(position).getContact() != "" && filteredModelItemsArray.get(position).getContact() != null) {
-            ((TextView) view.findViewById(R.id.listContact)).setVisibility(View.VISIBLE);
-            ((TextView) view.findViewById(R.id.listContact)).setText(filteredModelItemsArray.get(position).getContact());
-        } else {
-            ((TextView) view.findViewById(R.id.listContact)).setVisibility(View.GONE);
+        ((TextView) view.findViewById(R.id.listCategory)).setText(filteredModelItemsArray.get(position).getCategory());
+        ((TextView) view.findViewById(R.id.listText)).setText(filteredModelItemsArray.get(position).getText());
+
+        if (filteredModelItemsArray.get(position).getMarked() == 0) {
+            ImageView markImage = ((ImageView) view.findViewById(R.id.listMarkImage));
+            markImage.setVisibility(View.GONE);
         }
-
-        ((TextView) view.findViewById(R.id.listPhone)).setText(filteredModelItemsArray.get(position).getNumber());
-        ((TextView) view.findViewById(R.id.listDate)).setText(filteredModelItemsArray.get(position).getDate());
-
-        String text = filteredModelItemsArray.get(position).getText();
-        if (!text.equals("")) {
-            ((TextView) view.findViewById(R.id.listText)).setVisibility(View.VISIBLE);
-            ((TextView) view.findViewById(R.id.listText)).setText(filteredModelItemsArray.get(position).getText());
-        } else {
-            ((TextView) view.findViewById(R.id.listText)).setVisibility(View.GONE);
-        }
-
-        ((TextView) view.findViewById(R.id.listAlarmSignal)).setText(filteredModelItemsArray.get(position).getAlarmSignal());
-
-        if (filteredModelItemsArray.get(position).getType().equals("0")) {
-            ((ImageView) view.findViewById(R.id.listImage)).setBackgroundResource(R.drawable.ic_arrow_top_right);
-        } else {
-            ((ImageView) view.findViewById(R.id.listImage)).setBackgroundResource(R.drawable.ic_arrow_bottom_left);
-        }
-        Bitmap imageNew = GetContactPhoto.getContactPhoto(context, filteredModelItemsArray.get(position).getNumber());
-        ((ImageView) view.findViewById(R.id.contactImage)).setImageBitmap(imageNew);
 
         return view;
     }
@@ -127,7 +105,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
             filteredModelItemsArray = (ArrayList<ListItem>) results.values;
             clear();
-           // notifyDataSetChanged();
+            // notifyDataSetChanged();
             for (int i = 0, l = filteredModelItemsArray.size(); i < l; i++)
                 add(filteredModelItemsArray.get(i));
             notifyDataSetChanged();

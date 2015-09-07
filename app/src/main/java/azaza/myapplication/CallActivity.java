@@ -38,7 +38,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import azaza.myapplication.DataBase.DataBaseProvider;
+import azaza.myapplication.DataBase.DataBaseProviderModern;
 import azaza.myapplication.GlobalData.PhoneData;
 import azaza.myapplication.Libs.Contacts.GetContactPhoto;
 import azaza.myapplication.Libs.Google.AddEventCalendar;
@@ -59,7 +59,7 @@ public class CallActivity extends Activity {
     ImageButton speak;
     EditText comment;
     String text = "";
-    DataBaseProvider db = new DataBaseProvider();
+    DataBaseProviderModern db = new DataBaseProviderModern();
     ArrayList<String> results;
     ImageView contactImageView;
     AlertDialog.Builder builder;
@@ -173,7 +173,7 @@ public class CallActivity extends Activity {
         Note note = new Note(ID++, PhoneData.PHONE, PhoneData.CONTACT, comment.getText().toString(), timeMili, false, true);
         setAlarm(note);
         text = (comment.getText().toString());
-        db.addRec(this,PhoneData.myTYPE, PhoneData.PHONE, PhoneData.CONTACT, PhoneData.DATE, text, timeMili);
+        db.addRec(this, 1,"All", PhoneData.PHONE, PhoneData.CONTACT, PhoneData.DATE, text, timeMili, 1, PhoneData.myTYPE, 1);
 
         // Load from Settings
         if (LoadSettings.SYNC_CALENDAR == 1) {

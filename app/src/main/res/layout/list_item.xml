@@ -3,100 +3,56 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_vertical"
-    android:orientation="vertical">
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="horizontal"
+    >
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <LinearLayout
-            android:layout_width="56dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_gravity="center_vertical|center_horizontal"
-            android:gravity="center_horizontal|center_vertical"
-            android:id="@+id/imageIcon">
-
-            <com.makeramen.roundedimageview.RoundedImageView
-                app:riv_oval="true"
-                android:scaleType="fitCenter"
-                app:riv_corner_radius="30dip"
-                app:riv_border_width="1dip"
-                app:riv_border_color="#ffffff"
-                android:id="@+id/contactImage"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                />
-
-            <ImageView
-                android:id="@+id/listImage"
-                android:layout_gravity="left"
-                android:layout_width="20dp"
-                android:layout_height="20dp" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/listId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Id"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/listContact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="New Text" />
-
-            <TextView
-                android:id="@+id/listPhone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="New Text" />
-
-            <TextView
-                android:id="@+id/listDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="New Text" />
-
-            <TextView
-                android:id="@+id/listText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="New Text" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="left">
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/listAlarmImage"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="@drawable/ic_alarm" />
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:background="@drawable/cycle" />
 
         <TextView
-            android:id="@+id/listAlarmSignal"
+            android:id="@+id/listId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Id"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/listCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="New Text"
-            android:layout_marginLeft="36dp" />
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/listText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:text="New Text" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end">
+
+            <ImageView
+                android:id="@+id/listMarkImage"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/ic_star" />
+        </LinearLayout>
 
     </LinearLayout>
 

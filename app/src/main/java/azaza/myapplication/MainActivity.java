@@ -3,10 +3,8 @@ package azaza.myapplication;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -19,7 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 
 import com.baoyz.swipemenulistview.SwipeMenu;
 import com.baoyz.swipemenulistview.SwipeMenuCreator;
@@ -31,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import azaza.myapplication.Adapter.ListItemAdapter;
-import azaza.myapplication.DataBase.DataBaseProvider;
+import azaza.myapplication.DataBase.DataBaseProviderModern;
 import azaza.myapplication.GlobalData.UserData;
 import azaza.myapplication.Libs.GetMiliDate;
 import azaza.myapplication.Libs.Google.LoadProfile;
@@ -43,18 +41,18 @@ import azaza.myapplication.Settings.LoadSettings;
 public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
 
     SwipeMenuListView listView;
-    DataBaseProvider db = new DataBaseProvider();
+    DataBaseProviderModern db = new DataBaseProviderModern();
 
 
     List<ListItem> data;
     Toolbar toolbar;
     ListItemAdapter adapter;
-    TextView emptyList;
+    LinearLayout emptyList;
     AlertDialog.Builder ad;
     public Drawer.Result drawerResult = null;
     GetMiliDate getMiliDate = new GetMiliDate();
 
-    DataBaseProvider dataBaseProvider = new DataBaseProvider();
+    DataBaseProviderModern dataBaseProvider = new DataBaseProviderModern();
 
     public static Context ctx;
 
@@ -67,7 +65,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         ctx = this;
         getSupportLoaderManager().initLoader(1, null, this);
 
-        emptyList = (TextView) findViewById(R.id.idListEmpty);
+        emptyList = (LinearLayout) findViewById(R.id.listIsEmpty);
         emptyList.setVisibility(View.GONE);
         listView = (SwipeMenuListView) findViewById(R.id.listMain);
         listView.setTextFilterEnabled(true);
@@ -122,9 +120,9 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
             public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
                 switch (index) {
                     case 0:
-                        Intent callIntent = new Intent(Intent.ACTION_CALL);
-                        callIntent.setData(Uri.parse("tel:" + adapter.getItem(position).getNumber()));
-                        startActivity(callIntent);
+//                        Intent callIntent = new Intent(Intent.ACTION_CALL);
+//                        callIntent.setData(Uri.parse("tel:" + adapter.getItem(position).getNumber()));
+//                        startActivity(callIntent);
                         break;
 
                     case 1:
@@ -134,7 +132,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
                     case 2:
                         // delete
                         int itemId = adapter.getItem(position).getId();
-                        db.delRec(MainActivity.this,itemId);
+                        db.delRec(MainActivity.this, itemId);
                         adapter.remove(adapter.getItem(position));
                         adapter = new ListItemAdapter(MainActivity.this, getModel());
                         listView.setAdapter(adapter);
@@ -230,27 +228,22 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     public List<ListItem> getModel() {
 
         List<ListItem> list = new ArrayList<ListItem>();
-        Cursor c = dataBaseProvider.getAllData(this);
-        if (c.getCount() == 0) {
-            listView.setVisibility(View.GONE);
+        Cursor c = dataBaseProvider.getMainListTask(this);
+        if(c.getCount() == 0){
             emptyList.setVisibility(View.VISIBLE);
-            list.add(get(1, "0", "551579", "Test", "13.13.2013", "Some Text", "1231"));
-        } else {
-            listView.setVisibility(View.VISIBLE);
-            emptyList.setVisibility(View.GONE);
-            if (!c.moveToFirst()) {
-            } else {
-                do {
-                    list.add(get(c.getInt(c.getColumnIndex("_id")), c.getString(c.getColumnIndex("type")), c.getString(c.getColumnIndex("contact")), c.getString(c.getColumnIndex("number")),
-                            c.getString(c.getColumnIndex("date")), c.getString(c.getColumnIndex("txt")), getMiliDate.millisToDate(c.getLong(c.getColumnIndex("alarmDate")))));
-                } while (c.moveToNext());
-            }
+        }
+        c.moveToFirst();
+        if (c.isLast()) {
+            do {
+                list.add(get(c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ID)), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ACTIVE)), c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_CATEGORY)),
+                        c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_TXT)), getMiliDate.millisToDate(c.getLong(c.getColumnIndex(DataBaseProviderModern.COLUMN_ALARM_DATE))), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_MARKED))));
+            } while (c.moveToNext());
         }
         return list;
     }
 
-    public ListItem get(int id, String type, String contact, String phone, String data, String text, String alarmSignal) {
-        return new ListItem(id, type, contact, phone, data, text, alarmSignal);
+    public ListItem get(int id, int active, String category, String text, String alarmSignal, int marked) {
+        return new ListItem(id, active, category, text, alarmSignal, marked);
     }
 
     public void loadSettings() {
@@ -265,7 +258,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     @Override
     protected void onStop() {
-      //  this.recreate();
+        //  this.recreate();
         super.onStop();
     }
 
@@ -277,7 +270,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        return new CursorLoader(this, DataBaseProvider.CONTACT_CONTENT_URI, null, null, null, null);
+        return new CursorLoader(this, DataBaseProviderModern.CONTACT_CONTENT_URI, null, null, null, null);
 
     }
 
@@ -293,9 +286,9 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     }
 
     static class MyCursorLoader extends CursorLoader {
-        DataBaseProvider db;
+        DataBaseProviderModern db;
 
-        public MyCursorLoader(Context context, DataBaseProvider db) {
+        public MyCursorLoader(Context context, DataBaseProviderModern db) {
             super(context);
             this.db = db;
         }
