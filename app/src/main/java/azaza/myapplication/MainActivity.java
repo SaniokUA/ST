@@ -13,19 +13,21 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 
-import com.baoyz.swipemenulistview.SwipeMenu;
-import com.baoyz.swipemenulistview.SwipeMenuCreator;
-import com.baoyz.swipemenulistview.SwipeMenuItem;
-import com.baoyz.swipemenulistview.SwipeMenuListView;
+import com.fortysevendeg.swipelistview.BaseSwipeListViewListener;
+import com.fortysevendeg.swipelistview.SwipeListView;
 import com.mikepenz.materialdrawer.Drawer;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import azaza.myapplication.Adapter.ListItemAdapter;
@@ -40,7 +42,7 @@ import azaza.myapplication.Settings.LoadSettings;
 
 public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
 
-    SwipeMenuListView listView;
+    SwipeListView listView;
     DataBaseProviderModern db = new DataBaseProviderModern();
 
 
@@ -50,7 +52,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     LinearLayout emptyList;
     AlertDialog.Builder ad;
     public Drawer.Result drawerResult = null;
-    GetMiliDate getMiliDate = new GetMiliDate();
 
     DataBaseProviderModern dataBaseProvider = new DataBaseProviderModern();
 
@@ -67,8 +68,9 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         emptyList = (LinearLayout) findViewById(R.id.listIsEmpty);
         emptyList.setVisibility(View.GONE);
-        listView = (SwipeMenuListView) findViewById(R.id.listMain);
+        listView = (SwipeListView) findViewById(R.id.listMain);
         listView.setTextFilterEnabled(true);
+
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
         setSupportActionBar(toolbar);
@@ -82,70 +84,122 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         data = getModel();
         adapter = new ListItemAdapter(this, data);
-        listView.setAdapter(adapter);
 
-        SwipeMenuCreator creator = new SwipeMenuCreator() {
-
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        listView.setSwipeListViewListener(new BaseSwipeListViewListener() {
             @Override
-            public void create(SwipeMenu menu) {
-                // create "call" item
-                SwipeMenuItem callItem = new SwipeMenuItem(
-                        getApplicationContext());
-                callItem.setWidth((100));
-                callItem.setIcon(R.drawable.ic_phone);
-                menu.addMenuItem(callItem);
-
-                // create "delete alarm" item
-                SwipeMenuItem deleteAlarmItem = new SwipeMenuItem(
-                        getApplicationContext());
-                deleteAlarmItem.setWidth((100));
-                deleteAlarmItem.setIcon(R.drawable.ic_alarm);
-                menu.addMenuItem(deleteAlarmItem);
-
-                // create "delete" item
-                SwipeMenuItem deleteItem = new SwipeMenuItem(
-                        getApplicationContext());
-                deleteItem.setWidth((100));
-                deleteItem.setIcon(R.drawable.ic_delete_dark);
-                menu.addMenuItem(deleteItem);
+            public void onOpened(int position, boolean toRight) {
             }
-        };
 
-
-// set creator
-        listView.setMenuCreator(creator);
-
-        listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
             @Override
-            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
-                switch (index) {
-                    case 0:
-//                        Intent callIntent = new Intent(Intent.ACTION_CALL);
-//                        callIntent.setData(Uri.parse("tel:" + adapter.getItem(position).getNumber()));
-//                        startActivity(callIntent);
-                        break;
+            public void onClosed(int position, boolean fromRight) {
+            }
 
-                    case 1:
+            @Override
+            public void onListChanged() {
+            }
 
-                        break;
+            @Override
+            public void onMove(int position, float x) {
+            }
 
-                    case 2:
-                        // delete
-                        int itemId = adapter.getItem(position).getId();
-                        db.delRec(MainActivity.this, itemId);
-                        adapter.remove(adapter.getItem(position));
-                        adapter = new ListItemAdapter(MainActivity.this, getModel());
-                        listView.setAdapter(adapter);
-                        adapter.notifyDataSetChanged();
-                        break;
+            @Override
+            public void onStartOpen(int position, int action, boolean right) {
+                Log.d("swipe", String.format("onStartOpen %d - action %d", position, action));
+            }
+
+            @Override
+            public void onStartClose(int position, boolean right) {
+                Log.d("swipe", String.format("onStartClose %d", position));
+            }
+
+            @Override
+            public void onClickFrontView(int position) {
+                Log.d("swipe", String.format("onClickFrontView %d", position));
+            }
+
+            @Override
+            public void onClickBackView(int position) {
+                Log.d("swipe", String.format("onClickBackView %d", position));
+            }
+
+            @Override
+            public void onDismiss(int[] reverseSortedPositions) {
+                for (int position : reverseSortedPositions) {
+                    data.remove(position);
                 }
-                // false : close the menu; true : not close the menu
-                return false;
+                adapter.notifyDataSetChanged();
             }
+
         });
 
 
-        listView.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
+        listView.setAdapter(adapter);
+
+
+
+//        SwipeMenuCreator creator = new SwipeMenuCreator() {
+//
+//            @Override
+//            public void create(SwipeMenu menu) {
+//                // create "call" item
+//                SwipeMenuItem callItem = new SwipeMenuItem(
+//                        getApplicationContext());
+//                callItem.setWidth((100));
+//                callItem.setIcon(R.drawable.ic_phone);
+//                menu.addMenuItem(callItem);
+//
+//                // create "delete alarm" item
+//                SwipeMenuItem deleteAlarmItem = new SwipeMenuItem(
+//                        getApplicationContext());
+//                deleteAlarmItem.setWidth((100));
+//                deleteAlarmItem.setIcon(R.drawable.ic_alarm);
+//                menu.addMenuItem(deleteAlarmItem);
+//
+//                // create "delete" item
+//                SwipeMenuItem deleteItem = new SwipeMenuItem(
+//                        getApplicationContext());
+//                deleteItem.setWidth((100));
+//                deleteItem.setIcon(R.drawable.ic_delete_dark);
+//                menu.addMenuItem(deleteItem);
+//            }
+//        };
+
+
+// set creator
+//        listView.setMenuCreator(creator);
+//
+//        listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+//                switch (index) {
+//                    case 0:
+////                        Intent callIntent = new Intent(Intent.ACTION_CALL);
+////                        callIntent.setData(Uri.parse("tel:" + adapter.getItem(position).getNumber()));
+////                        startActivity(callIntent);
+//                        break;
+//
+//                    case 1:
+//
+//                        break;
+//
+//                    case 2:
+//                        // delete
+//                        int itemId = adapter.getItem(position).getId();
+//                        db.delRec(MainActivity.this, itemId);
+//                        adapter.remove(adapter.getItem(position));
+//                        adapter = new ListItemAdapter(MainActivity.this, getModel());
+//                        listView.setAdapter(adapter);
+//                        adapter.notifyDataSetChanged();
+//                        break;
+//                }
+//                // false : close the menu; true : not close the menu
+//                return false;
+//            }
+//        });
+//
+//
+//        listView.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
 
 
         ad = new AlertDialog.Builder(this);
@@ -227,18 +281,23 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     public List<ListItem> getModel() {
 
+
+        Date date  = Calendar.getInstance().getTime();
+        long start = GetMiliDate.getStartOfDay(date);
+        long end = GetMiliDate.getEndOfDay(date);
         List<ListItem> list = new ArrayList<ListItem>();
-        Cursor c = dataBaseProvider.getMainListTask(this);
+        Cursor c = dataBaseProvider.getMainListTaskToDay(this, start / 1000, end / 1000);
         if(c.getCount() == 0){
             emptyList.setVisibility(View.VISIBLE);
         }
-        c.moveToFirst();
-        if (c.isLast()) {
+        if (!c.moveToFirst()) {
+        }else{
             do {
                 list.add(get(c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ID)), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ACTIVE)), c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_CATEGORY)),
-                        c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_TXT)), getMiliDate.millisToDate(c.getLong(c.getColumnIndex(DataBaseProviderModern.COLUMN_ALARM_DATE))), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_MARKED))));
+                        c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_TXT)), GetMiliDate.millisToDateConvert(c.getLong(c.getColumnIndex(DataBaseProviderModern.COLUMN_ALARM_DATE))), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_MARKED))));
             } while (c.moveToNext());
         }
+        c.close();
         return list;
     }
 
@@ -258,7 +317,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     @Override
     protected void onStop() {
-        //  this.recreate();
         super.onStop();
     }
 

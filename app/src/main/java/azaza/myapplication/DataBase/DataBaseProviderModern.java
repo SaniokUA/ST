@@ -226,6 +226,13 @@ public class DataBaseProviderModern extends ContentProvider {
         return cursor;
     }
 
+    public Cursor getMainListTaskToDay(Context ctx, long startDay, long endDay){
+        String []columns = new String[] {COLUMN_ID, COLUMN_ACTIVE, COLUMN_CATEGORY, COLUMN_TXT, COLUMN_ALARM_DATE, COLUMN_MARKED};
+        String selectionClause = COLUMN_ALARM_DATE + " >= "+ startDay + " AND " + COLUMN_ALARM_DATE + " <= " + endDay;
+        Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns , selectionClause, null, COLUMN_ALARM_DATE);
+        return cursor;
+    }
+
     // добавить запись в DB_TABLE
     public void addRec(Context ctx, int active, String category, String number, String contact, String date, String text, long alarmdate, int marked, String typeCall, int position) {
 

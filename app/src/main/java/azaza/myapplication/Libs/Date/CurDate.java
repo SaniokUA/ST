@@ -12,7 +12,7 @@ public class CurDate {
 
     }
 
-    public String getDate(){
+    public static String getDate(){
         Date d = new Date();
         SimpleDateFormat format1 = new SimpleDateFormat("dd.MM.yyyy");
         return format1.format(d);
