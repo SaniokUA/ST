@@ -13,22 +13,25 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
-import com.fortysevendeg.swipelistview.BaseSwipeListViewListener;
-import com.fortysevendeg.swipelistview.SwipeListView;
 import com.mikepenz.materialdrawer.Drawer;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import azaza.library.SwipeActionAdapter;
+import azaza.library.SwipeDirections;
+
 
 import azaza.myapplication.Adapter.ListItemAdapter;
 import azaza.myapplication.DataBase.DataBaseProviderModern;
@@ -40,18 +43,18 @@ import azaza.myapplication.Model.ListItem;
 import azaza.myapplication.Settings.LoadSettings;
 
 
-public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener {
+public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener, SwipeActionAdapter.SwipeActionListener {
 
-    SwipeListView listView;
+    ListView listView;
     DataBaseProviderModern db = new DataBaseProviderModern();
-
-
     List<ListItem> data;
     Toolbar toolbar;
     ListItemAdapter adapter;
     LinearLayout emptyList;
     AlertDialog.Builder ad;
     public Drawer.Result drawerResult = null;
+
+    SwipeActionAdapter mAdapter;
 
     DataBaseProviderModern dataBaseProvider = new DataBaseProviderModern();
 
@@ -64,17 +67,18 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         loadSettings();
         ctx = this;
+
         getSupportLoaderManager().initLoader(1, null, this);
 
         emptyList = (LinearLayout) findViewById(R.id.listIsEmpty);
         emptyList.setVisibility(View.GONE);
-        listView = (SwipeListView) findViewById(R.id.listMain);
-        listView.setTextFilterEnabled(true);
+        listView = (ListView) findViewById(R.id.listMain);
+//        listView.setTextFilterEnabled(true);
 
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //setSupportActionBar(toolbar);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         drawerResult = MaterialMenu.createCommonDrawer(this, toolbar);
 
@@ -83,124 +87,22 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         }
 
         data = getModel();
+        // ListItemAdapter
         adapter = new ListItemAdapter(this, data);
+        // SwipeActionAdapter
+        mAdapter = new SwipeActionAdapter(adapter);
+        mAdapter.setSwipeActionListener(this)
+                .setDimBackgrounds(true)
+                .setListView(listView);
+        listView.setAdapter(mAdapter);
 
-        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        listView.setSwipeListViewListener(new BaseSwipeListViewListener() {
-            @Override
-            public void onOpened(int position, boolean toRight) {
-            }
+        mAdapter.addBackground(SwipeDirections.DIRECTION_FAR_LEFT, R.layout.row_bg_left_far)
+                .addBackground(SwipeDirections.DIRECTION_NORMAL_LEFT,R.layout.row_bg_left)
+                .addBackground(SwipeDirections.DIRECTION_FAR_RIGHT,R.layout.row_bg_right_far)
+                .addBackground(SwipeDirections.DIRECTION_NORMAL_RIGHT,R.layout.row_bg_right);
 
-            @Override
-            public void onClosed(int position, boolean fromRight) {
-            }
-
-            @Override
-            public void onListChanged() {
-            }
-
-            @Override
-            public void onMove(int position, float x) {
-            }
-
-            @Override
-            public void onStartOpen(int position, int action, boolean right) {
-                Log.d("swipe", String.format("onStartOpen %d - action %d", position, action));
-            }
-
-            @Override
-            public void onStartClose(int position, boolean right) {
-                Log.d("swipe", String.format("onStartClose %d", position));
-            }
-
-            @Override
-            public void onClickFrontView(int position) {
-                Log.d("swipe", String.format("onClickFrontView %d", position));
-            }
-
-            @Override
-            public void onClickBackView(int position) {
-                Log.d("swipe", String.format("onClickBackView %d", position));
-            }
-
-            @Override
-            public void onDismiss(int[] reverseSortedPositions) {
-                for (int position : reverseSortedPositions) {
-                    data.remove(position);
-                }
-                adapter.notifyDataSetChanged();
-            }
-
-        });
-
-
-        listView.setAdapter(adapter);
-
-
-
-//        SwipeMenuCreator creator = new SwipeMenuCreator() {
-//
-//            @Override
-//            public void create(SwipeMenu menu) {
-//                // create "call" item
-//                SwipeMenuItem callItem = new SwipeMenuItem(
-//                        getApplicationContext());
-//                callItem.setWidth((100));
-//                callItem.setIcon(R.drawable.ic_phone);
-//                menu.addMenuItem(callItem);
-//
-//                // create "delete alarm" item
-//                SwipeMenuItem deleteAlarmItem = new SwipeMenuItem(
-//                        getApplicationContext());
-//                deleteAlarmItem.setWidth((100));
-//                deleteAlarmItem.setIcon(R.drawable.ic_alarm);
-//                menu.addMenuItem(deleteAlarmItem);
-//
-//                // create "delete" item
-//                SwipeMenuItem deleteItem = new SwipeMenuItem(
-//                        getApplicationContext());
-//                deleteItem.setWidth((100));
-//                deleteItem.setIcon(R.drawable.ic_delete_dark);
-//                menu.addMenuItem(deleteItem);
-//            }
-//        };
-
-
-// set creator
-//        listView.setMenuCreator(creator);
-//
-//        listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
-//                switch (index) {
-//                    case 0:
-////                        Intent callIntent = new Intent(Intent.ACTION_CALL);
-////                        callIntent.setData(Uri.parse("tel:" + adapter.getItem(position).getNumber()));
-////                        startActivity(callIntent);
-//                        break;
-//
-//                    case 1:
-//
-//                        break;
-//
-//                    case 2:
-//                        // delete
-//                        int itemId = adapter.getItem(position).getId();
-//                        db.delRec(MainActivity.this, itemId);
-//                        adapter.remove(adapter.getItem(position));
-//                        adapter = new ListItemAdapter(MainActivity.this, getModel());
-//                        listView.setAdapter(adapter);
-//                        adapter.notifyDataSetChanged();
-//                        break;
-//                }
-//                // false : close the menu; true : not close the menu
-//                return false;
-//            }
-//        });
-//
-//
-//        listView.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
-
+//        listView.setAdapter(mAdapter);
+        //mAdapter.setListView(listView);
 
         ad = new AlertDialog.Builder(this);
         ad.setTitle("Delete all items");  // заголовок
@@ -228,6 +130,13 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
             super.onBackPressed();
         }
     }
+
+    public int convertDpToPixel(float dp) {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        float px = dp * (metrics.densityDpi / 160f);
+        return (int) px;
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -282,16 +191,16 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     public List<ListItem> getModel() {
 
 
-        Date date  = Calendar.getInstance().getTime();
+        Date date = Calendar.getInstance().getTime();
         long start = GetMiliDate.getStartOfDay(date);
         long end = GetMiliDate.getEndOfDay(date);
         List<ListItem> list = new ArrayList<ListItem>();
         Cursor c = dataBaseProvider.getMainListTaskToDay(this, start / 1000, end / 1000);
-        if(c.getCount() == 0){
+        if (c.getCount() == 0) {
             emptyList.setVisibility(View.VISIBLE);
         }
         if (!c.moveToFirst()) {
-        }else{
+        } else {
             do {
                 list.add(get(c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ID)), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ACTIVE)), c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_CATEGORY)),
                         c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_TXT)), GetMiliDate.millisToDateConvert(c.getLong(c.getColumnIndex(DataBaseProviderModern.COLUMN_ALARM_DATE))), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_MARKED))));
@@ -341,6 +250,49 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+    @Override
+    public boolean hasActions(int position) {
+        return true;
+    }
+
+    @Override
+    public boolean shouldDismiss(int position, int direction) {
+        return direction == SwipeDirections.DIRECTION_NORMAL_LEFT;
+    }
+
+
+    @Override
+    public void onSwipe(int[] positionList, int[] directionList) {
+        for (int i = 0; i < positionList.length; i++) {
+            int direction = directionList[i];
+            int position = positionList[i];
+            String dir = "";
+
+            switch (direction) {
+                case SwipeDirections.DIRECTION_FAR_LEFT:
+                    dir = "Far left";
+                    break;
+                case SwipeDirections.DIRECTION_NORMAL_LEFT:
+                    dir = "Left";
+                    break;
+                case SwipeDirections.DIRECTION_FAR_RIGHT:
+                    dir = "Far right";
+                    break;
+                case SwipeDirections.DIRECTION_NORMAL_RIGHT:
+                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+                    builder.setTitle("Test Dialog").setMessage("You swiped right").create().show();
+                    dir = "Right";
+                    break;
+            }
+            Toast.makeText(
+                    this,
+                    dir + " swipe Action triggered on " + mAdapter.getItem(position),
+                    Toast.LENGTH_SHORT
+            ).show();
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     static class MyCursorLoader extends CursorLoader {

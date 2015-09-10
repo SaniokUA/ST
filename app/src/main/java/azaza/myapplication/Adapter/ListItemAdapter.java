@@ -18,7 +18,7 @@ import azaza.myapplication.R;
 /**
  * Created by Alex on 05.06.2015.
  */
-public class ListItemAdapter extends ArrayAdapter<ListItem> {
+public class ListItemAdapter extends ArrayAdapter<ListItem>  {
 
     private Activity context;
     private Filter textFilter;
@@ -28,7 +28,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
 
     public ListItemAdapter(Activity context, List<ListItem> list) {
-        super(context, R.layout.list_item, list);
+        super(context, R.layout.row_bg, list);
         this.context = context;
 
         this.allModelItemsArray = new ArrayList<ListItem>();
@@ -42,7 +42,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
     public View getView(final int position, final View convertView, final ViewGroup parent) {
 
         LayoutInflater inflator = context.getLayoutInflater();
-        View view = inflator.inflate(R.layout.list_item, null);
+        View view = inflator.inflate(R.layout.row_bg, null);
 
         String id = String.valueOf(filteredModelItemsArray.get(position).getId());
         ((TextView) view.findViewById(R.id.listId)).setText(id);
