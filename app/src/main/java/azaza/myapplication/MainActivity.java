@@ -1,26 +1,24 @@
 package azaza.myapplication;
 
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.TabHost;
+import android.widget.TabWidget;
+import android.widget.TextView;
 
 import com.mikepenz.materialdrawer.Drawer;
 
@@ -28,10 +26,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import azaza.library.SwipeActionAdapter;
-import azaza.library.SwipeDirections;
-
 
 import azaza.myapplication.Adapter.ListItemAdapter;
 import azaza.myapplication.DataBase.DataBaseProviderModern;
@@ -43,18 +37,16 @@ import azaza.myapplication.Model.ListItem;
 import azaza.myapplication.Settings.LoadSettings;
 
 
-public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, SearchView.OnQueryTextListener, SwipeActionAdapter.SwipeActionListener {
+public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    ListView listView;
+    ListView listViewToday, listViewTomorrow, listViewFuture, listViewNoDate;
     DataBaseProviderModern db = new DataBaseProviderModern();
     List<ListItem> data;
     Toolbar toolbar;
     ListItemAdapter adapter;
-    LinearLayout emptyList;
+    LinearLayout emptyToday, emptyTomorrow, emptyFuture, emptyNoDate;
     AlertDialog.Builder ad;
     public Drawer.Result drawerResult = null;
-
-    SwipeActionAdapter mAdapter;
 
     DataBaseProviderModern dataBaseProvider = new DataBaseProviderModern();
 
@@ -70,15 +62,28 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         getSupportLoaderManager().initLoader(1, null, this);
 
-        emptyList = (LinearLayout) findViewById(R.id.listIsEmpty);
-        emptyList.setVisibility(View.GONE);
-        listView = (ListView) findViewById(R.id.listMain);
-//        listView.setTextFilterEnabled(true);
+        initTabs();
+
+        emptyToday = (LinearLayout) findViewById(R.id.today);
+        emptyTomorrow = (LinearLayout) findViewById(R.id.tomorrow);
+        emptyFuture = (LinearLayout) findViewById(R.id.future);
+        emptyNoDate = (LinearLayout) findViewById(R.id.noDate);
+
+
+        listViewToday = (ListView) findViewById(R.id.listMainToday);
+        listViewTomorrow = (ListView) findViewById(R.id.listMainTomorrow);
+        listViewFuture = (ListView) findViewById(R.id.listMainFuture);
+        listViewNoDate = (ListView) findViewById(R.id.listMainNoDate);
+
+        listToday();
+        listTomorrow();
+        listFuture();
+        listNoDate();
 
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
-        //setSupportActionBar(toolbar);
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         drawerResult = MaterialMenu.createCommonDrawer(this, toolbar);
 
@@ -86,23 +91,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
             LoadProfile.onLoadProfile(this, toolbar);
         }
 
-        data = getModel();
-        // ListItemAdapter
-        adapter = new ListItemAdapter(this, data);
-        // SwipeActionAdapter
-        mAdapter = new SwipeActionAdapter(adapter);
-        mAdapter.setSwipeActionListener(this)
-                .setDimBackgrounds(true)
-                .setListView(listView);
-        listView.setAdapter(mAdapter);
-
-        mAdapter.addBackground(SwipeDirections.DIRECTION_FAR_LEFT, R.layout.row_bg_left_far)
-                .addBackground(SwipeDirections.DIRECTION_NORMAL_LEFT,R.layout.row_bg_left)
-                .addBackground(SwipeDirections.DIRECTION_FAR_RIGHT,R.layout.row_bg_right_far)
-                .addBackground(SwipeDirections.DIRECTION_NORMAL_RIGHT,R.layout.row_bg_right);
-
-//        listView.setAdapter(mAdapter);
-        //mAdapter.setListView(listView);
 
         ad = new AlertDialog.Builder(this);
         ad.setTitle("Delete all items");  // заголовок
@@ -131,44 +119,16 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         }
     }
 
-    public int convertDpToPixel(float dp) {
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        float px = dp * (metrics.densityDpi / 160f);
-        return (int) px;
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
 
         getMenuInflater().inflate(R.menu.menu_list, menu);
-
-        SearchManager searchManager = (SearchManager)
-                getSystemService(Context.SEARCH_SERVICE);
-        MenuItem searchMenuItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) searchMenuItem.getActionView();
-        EditText searchEdit = (EditText) searchView.getRootView().findViewById(R.id.search_src_text);
-        searchEdit.setHintTextColor(Color.WHITE);
-        searchEdit.setTextColor(Color.WHITE);
-        searchView.setSearchableInfo(searchManager.
-                getSearchableInfo(getComponentName()));
-        searchView.setSubmitButtonEnabled(true);
-        searchView.setOnQueryTextListener(this);
         return true;
     }
 
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        adapter.getFilter().filter(query);
-        return false;
-    }
 
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        adapter.getFilter().filter(newText);
-        return true;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -188,17 +148,26 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         return super.onOptionsItemSelected(item);
     }
 
-    public List<ListItem> getModel() {
+    public List<ListItem> getModel(long dayStart, long dayEnd) {
 
-
-        Date date = Calendar.getInstance().getTime();
-        long start = GetMiliDate.getStartOfDay(date);
-        long end = GetMiliDate.getEndOfDay(date);
         List<ListItem> list = new ArrayList<ListItem>();
-        Cursor c = dataBaseProvider.getMainListTaskToDay(this, start / 1000, end / 1000);
-        if (c.getCount() == 0) {
-            emptyList.setVisibility(View.VISIBLE);
+        Cursor c = dataBaseProvider.getMainListTaskToDate(this, dayStart / 1000, dayEnd / 1000);
+        if (!c.moveToFirst()) {
+        } else {
+            do {
+                list.add(get(c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ID)), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ACTIVE)), c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_CATEGORY)),
+                        c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_TXT)), GetMiliDate.millisToDateConvert(c.getLong(c.getColumnIndex(DataBaseProviderModern.COLUMN_ALARM_DATE))), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_MARKED))));
+            } while (c.moveToNext());
         }
+        c.close();
+        return list;
+    }
+
+    public List<ListItem> getModelFuture(long dayStart) {
+
+        List<ListItem> list = new ArrayList<ListItem>();
+
+        Cursor c = dataBaseProvider.getMainListTaskToFuture(this, dayStart / 1000);
         if (!c.moveToFirst()) {
         } else {
             do {
@@ -225,16 +194,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         return new CursorLoader(this, DataBaseProviderModern.CONTACT_CONTENT_URI, null, null, null, null);
@@ -243,56 +202,14 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        data = getModel();
-        adapter = new ListItemAdapter(this, data);
-        listView.setAdapter(adapter);
+        listToday();
+        listTomorrow();
+        listFuture();
+        listNoDate();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-    }
-
-    @Override
-    public boolean hasActions(int position) {
-        return true;
-    }
-
-    @Override
-    public boolean shouldDismiss(int position, int direction) {
-        return direction == SwipeDirections.DIRECTION_NORMAL_LEFT;
-    }
-
-
-    @Override
-    public void onSwipe(int[] positionList, int[] directionList) {
-        for (int i = 0; i < positionList.length; i++) {
-            int direction = directionList[i];
-            int position = positionList[i];
-            String dir = "";
-
-            switch (direction) {
-                case SwipeDirections.DIRECTION_FAR_LEFT:
-                    dir = "Far left";
-                    break;
-                case SwipeDirections.DIRECTION_NORMAL_LEFT:
-                    dir = "Left";
-                    break;
-                case SwipeDirections.DIRECTION_FAR_RIGHT:
-                    dir = "Far right";
-                    break;
-                case SwipeDirections.DIRECTION_NORMAL_RIGHT:
-                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-                    builder.setTitle("Test Dialog").setMessage("You swiped right").create().show();
-                    dir = "Right";
-                    break;
-            }
-            Toast.makeText(
-                    this,
-                    dir + " swipe Action triggered on " + mAdapter.getItem(position),
-                    Toast.LENGTH_SHORT
-            ).show();
-            mAdapter.notifyDataSetChanged();
-        }
     }
 
     static class MyCursorLoader extends CursorLoader {
@@ -308,5 +225,89 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
             Cursor cursor = db.getAllData(ctx);
             return cursor;
         }
+    }
+
+
+    public void listToday() {
+
+        Date date = Calendar.getInstance().getTime();
+        long startDay = GetMiliDate.getStartOfDay(date);
+        long endDay = GetMiliDate.getEndOfDay(date);
+
+        data = getModel(startDay, endDay);
+        adapter = new ListItemAdapter(this, data);
+        if (adapter.getCount() == 0) {
+            emptyToday.setVisibility(View.GONE);
+        } else {
+            listViewToday.setAdapter(adapter);
+        }
+    }
+
+    public void listTomorrow() {
+
+        Date date = Calendar.getInstance().getTime();
+        long startDay = GetMiliDate.getStartOfTomorrow(date);
+        long endDay = GetMiliDate.getEndOfTomorrow(date);
+
+        data = getModel(startDay, endDay);
+        adapter = new ListItemAdapter(this, data);
+        if (adapter.getCount() == 0) {
+            emptyTomorrow.setVisibility(View.GONE);
+        } else {
+            listViewTomorrow.setAdapter(adapter);
+        }
+    }
+
+    public void listFuture() {
+
+        Date date = Calendar.getInstance().getTime();
+        long startDay = GetMiliDate.getStartOfWeek(date);
+
+        data = getModelFuture(startDay);
+        adapter = new ListItemAdapter(this, data);
+        if (adapter.getCount() == 0) {
+            emptyFuture.setVisibility(View.GONE);
+        } else {
+            listViewFuture.setAdapter(adapter);
+        }
+    }
+
+    public void listNoDate() {
+
+        emptyNoDate.setVisibility(View.GONE);
+
+    }
+
+    public void initTabs(){
+
+        TabHost tabs = (TabHost) findViewById(R.id.tabHost);
+        tabs.setup();
+
+        TabHost.TabSpec activeTab = tabs.newTabSpec("Active");
+        activeTab.setContent(R.id.tabLayout1);
+        activeTab.setIndicator("Активные");
+        tabs.addTab(activeTab);
+
+        TabHost.TabSpec passiveTab = tabs.newTabSpec("Passive");
+        passiveTab.setContent(R.id.tabLayout2);
+        passiveTab.setIndicator("Выполеные");
+        tabs.addTab(passiveTab);
+
+        TabHost.TabSpec failedTab = tabs.newTabSpec("Failed");
+        failedTab.setContent(R.id.tabLayout3);
+        failedTab.setIndicator("Проваленные");
+        tabs.addTab(failedTab);
+
+        final TabWidget tabWidget = tabs.getTabWidget();
+        for (int i = 0; i < tabWidget.getChildCount(); i++) {
+            final ViewGroup tab = (ViewGroup) tabWidget.getChildAt(i);
+            final TextView tabTextView = (TextView) tab.getChildAt(1);
+            tabTextView.setTextSize(11);
+
+            tabs.getTabWidget().getChildAt(i).setBackgroundResource(R.drawable.tab_selected);
+            tabs.getTabWidget().getChildAt(tabs.getCurrentTab()).setBackgroundResource(R.drawable.tab_unselected);
+        }
+
+
     }
 }

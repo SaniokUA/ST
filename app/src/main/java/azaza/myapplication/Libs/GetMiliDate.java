@@ -44,6 +44,36 @@ public class GetMiliDate{
         return calendar.getTimeInMillis();
     }
 
+    public static long getStartOfTomorrow (Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 24);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
+    }
+
+    public static long getEndOfTomorrow (Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 47);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        return calendar.getTimeInMillis();
+    }
+
+    public static long getStartOfWeek (Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 48);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
+    }
+
     public static String millisToDateConvert(long millis){
 
         long yourmilliseconds  = millis;
@@ -52,9 +82,5 @@ public class GetMiliDate{
         return resultdate.toString();
 
     }
-//
-//    public long endDay(){
-//        //return startDay() + (24 * 60 * 60);
-//    }
 
 }

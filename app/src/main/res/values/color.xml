@@ -5,7 +5,9 @@
     <item name="accent" type="color">#00bcd4</item>
     <item name="my_toolbar_light_color" type="color">#ffeb3b</item>
     <item name="grey" type="color">#b2141414</item>
-    <item name="light_grey" type="color">#DCDCDC</item>
+    <item name="light_grey" type="color">#eeeeee</item>
+    <item name="light_grey_dark" type="color">#e0e0e0</item>
+    <item name="light_grey_empty" type="color">#bfbfbf</item>
 
 
     <color name="colorPrimary">#404040</color>

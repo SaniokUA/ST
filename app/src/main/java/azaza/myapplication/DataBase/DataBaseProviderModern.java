@@ -226,9 +226,16 @@ public class DataBaseProviderModern extends ContentProvider {
         return cursor;
     }
 
-    public Cursor getMainListTaskToDay(Context ctx, long startDay, long endDay){
+    public Cursor getMainListTaskToDate(Context ctx, long startDay, long endDay){
         String []columns = new String[] {COLUMN_ID, COLUMN_ACTIVE, COLUMN_CATEGORY, COLUMN_TXT, COLUMN_ALARM_DATE, COLUMN_MARKED};
         String selectionClause = COLUMN_ALARM_DATE + " >= "+ startDay + " AND " + COLUMN_ALARM_DATE + " <= " + endDay;
+        Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns , selectionClause, null, COLUMN_ALARM_DATE);
+        return cursor;
+    }
+
+    public Cursor getMainListTaskToFuture(Context ctx, long startDay){
+        String []columns = new String[] {COLUMN_ID, COLUMN_ACTIVE, COLUMN_CATEGORY, COLUMN_TXT, COLUMN_ALARM_DATE, COLUMN_MARKED};
+        String selectionClause = COLUMN_ALARM_DATE + " >= "+ startDay;
         Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns , selectionClause, null, COLUMN_ALARM_DATE);
         return cursor;
     }
@@ -274,19 +281,6 @@ public class DataBaseProviderModern extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(DB_CREATE);
             ContentValues cv = new ContentValues();
-            for (int i = 1; i <= 3; i++) {
-                cv.put(COLUMN_ACTIVE, 1);
-                cv.put(COLUMN_POSITION, 1);
-                cv.put(COLUMN_TYPE_CALL, "1");
-                cv.put(COLUMN_MARKED, 0);
-                cv.put(COLUMN_NUMBER, "2222");
-                cv.put(COLUMN_CONTACT, "azaza");
-                cv.put(COLUMN_CREATION_DATE, "07.09.2015 15.22");
-                cv.put(COLUMN_TXT, "asdsad");
-                cv.put(COLUMN_CATEGORY, "test");
-                cv.put(COLUMN_ALARM_DATE, "12321321321");
-                db.insert(DB_TABLE, null, cv);
-            }
         }
 
         @Override
