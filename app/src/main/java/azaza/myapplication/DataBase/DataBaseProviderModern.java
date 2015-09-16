@@ -41,7 +41,6 @@ public class DataBaseProviderModern extends ContentProvider {
     public static final String COLUMN_POSITION = "position";
 
 
-
     // Скрипт создания таблицы
     private static final String DB_CREATE =
             "create table " + DB_TABLE + "(" +
@@ -220,25 +219,45 @@ public class DataBaseProviderModern extends ContentProvider {
         return cursor;
     }
 
-    public Cursor getMainListTask(Context ctx){
-        String []columns = new String[] {COLUMN_ID, COLUMN_ACTIVE, COLUMN_CATEGORY, COLUMN_TXT, COLUMN_ALARM_DATE, COLUMN_MARKED};
-        Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns , null, null, null);
+    public Cursor getMainListTask(Context ctx) {
+        String[] columns = new String[]{COLUMN_ID, COLUMN_ACTIVE, COLUMN_CATEGORY, COLUMN_TXT, COLUMN_ALARM_DATE, COLUMN_MARKED};
+        Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns, null, null, null);
         return cursor;
     }
 
-    public Cursor getMainListTaskToDate(Context ctx, long startDay, long endDay){
-        String []columns = new String[] {COLUMN_ID, COLUMN_ACTIVE, COLUMN_CATEGORY, COLUMN_TXT, COLUMN_ALARM_DATE, COLUMN_MARKED};
-        String selectionClause = COLUMN_ALARM_DATE + " >= "+ startDay + " AND " + COLUMN_ALARM_DATE + " <= " + endDay;
-        Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns , selectionClause, null, COLUMN_ALARM_DATE);
+    public Cursor getMainListTaskToDate(Context ctx, long startDay, long endDay, int marked) {
+        String selectionClause = null;
+        if (marked == 0) {
+            selectionClause = COLUMN_ALARM_DATE + " >= " + startDay + " AND " + COLUMN_ALARM_DATE + " <= " + endDay;
+
+        } else {
+            selectionClause = COLUMN_ALARM_DATE + " >= " + startDay + " AND " + COLUMN_ALARM_DATE + " <= " + endDay + " AND " + COLUMN_MARKED + " = " + marked;
+        }
+        String[] columns = new String[]{COLUMN_ID, COLUMN_ACTIVE, COLUMN_CATEGORY, COLUMN_TXT, COLUMN_ALARM_DATE, COLUMN_MARKED};
+        Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns, selectionClause, null, COLUMN_ALARM_DATE);
         return cursor;
     }
 
-    public Cursor getMainListTaskToFuture(Context ctx, long startDay){
-        String []columns = new String[] {COLUMN_ID, COLUMN_ACTIVE, COLUMN_CATEGORY, COLUMN_TXT, COLUMN_ALARM_DATE, COLUMN_MARKED};
-        String selectionClause = COLUMN_ALARM_DATE + " >= "+ startDay;
-        Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns , selectionClause, null, COLUMN_ALARM_DATE);
+    public Cursor getMainListTaskToFuture(Context ctx, long startDay, int marked) {
+        String selectionClause = null;
+        if (marked == 0) {
+            selectionClause = COLUMN_ALARM_DATE + " >= " + startDay;
+        } else {
+            selectionClause = COLUMN_ALARM_DATE + " >= " + startDay + " AND " + COLUMN_MARKED + " = " + marked;
+        }
+        String[] columns = new String[]{COLUMN_ID, COLUMN_ACTIVE, COLUMN_CATEGORY, COLUMN_TXT, COLUMN_ALARM_DATE, COLUMN_MARKED};
+        Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns, selectionClause, null, COLUMN_ALARM_DATE);
         return cursor;
     }
+
+    public Cursor getMainListTaskAllCategory(Context ctx) {
+        String[] columns = new String[]{COLUMN_CATEGORY};
+        //String selectionClause = "DISTINCT(" + COLUMN_CATEGORY + ")";
+        Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns, null, null, null);
+        return cursor;
+    }
+
+
 
     // добавить запись в DB_TABLE
     public void addRec(Context ctx, int active, String category, String number, String contact, String date, String text, long alarmdate, int marked, String typeCall, int position) {

@@ -37,6 +37,8 @@ public class SettingsActivity extends ActionBarActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+        toolbar.findViewById(R.id.spinner_nav).setVisibility(View.GONE);
+
 
         syncGoogle = (Switch) findViewById(R.id.switchSync);
         showAlarmWindow = (Switch) findViewById(R.id.switchAlarmWindow);

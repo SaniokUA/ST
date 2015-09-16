@@ -3,6 +3,7 @@ package azaza.myapplication;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -14,8 +15,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
@@ -47,6 +50,9 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     LinearLayout emptyToday, emptyTomorrow, emptyFuture, emptyNoDate;
     AlertDialog.Builder ad;
     public Drawer.Result drawerResult = null;
+    TabHost tabs;
+    static int mark = 0;
+    Spinner selectCategory;
 
     DataBaseProviderModern dataBaseProvider = new DataBaseProviderModern();
 
@@ -84,6 +90,25 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         toolbar = (Toolbar) findViewById(R.id.toolbar); // Attaching the layout to the toolbar object
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+
+
+        selectCategory = (Spinner) toolbar.findViewById(R.id.spinner_nav);
+        List<String> listCategory = new ArrayList<>();
+        Cursor category = dataBaseProvider.fetchUniqueMembers();
+        if (!category.moveToFirst()) {
+        } else {
+            do {
+                listCategory.add(category.getString(category.getColumnIndex(DataBaseProviderModern.COLUMN_CATEGORY)));
+            } while (category.moveToNext());
+        }
+        ArrayAdapter < String > adapterCategory = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, listCategory);
+        adapterCategory.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        selectCategory.setAdapter(adapterCategory);
+
+
+
 
         drawerResult = MaterialMenu.createCommonDrawer(this, toolbar);
 
@@ -129,7 +154,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     }
 
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -137,7 +161,20 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_marked) {
+
+            if (mark == 1) {
+                mark = 0;
+            } else {
+                mark = 1;
+            }
+            listToday();
+            listTomorrow();
+            listFuture();
+            listNoDate();
+
+        }
+
         if (id == R.id.action_clear) {
             ad.show();
         }
@@ -151,7 +188,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     public List<ListItem> getModel(long dayStart, long dayEnd) {
 
         List<ListItem> list = new ArrayList<ListItem>();
-        Cursor c = dataBaseProvider.getMainListTaskToDate(this, dayStart / 1000, dayEnd / 1000);
+        Cursor c = dataBaseProvider.getMainListTaskToDate(this, dayStart / 1000, dayEnd / 1000, mark);
         if (!c.moveToFirst()) {
         } else {
             do {
@@ -167,7 +204,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         List<ListItem> list = new ArrayList<ListItem>();
 
-        Cursor c = dataBaseProvider.getMainListTaskToFuture(this, dayStart / 1000);
+        Cursor c = dataBaseProvider.getMainListTaskToFuture(this, dayStart / 1000, mark);
         if (!c.moveToFirst()) {
         } else {
             do {
@@ -239,6 +276,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         if (adapter.getCount() == 0) {
             emptyToday.setVisibility(View.GONE);
         } else {
+            emptyToday.setVisibility(View.VISIBLE);
             listViewToday.setAdapter(adapter);
         }
     }
@@ -254,6 +292,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         if (adapter.getCount() == 0) {
             emptyTomorrow.setVisibility(View.GONE);
         } else {
+            emptyTomorrow.setVisibility(View.VISIBLE);
             listViewTomorrow.setAdapter(adapter);
         }
     }
@@ -268,6 +307,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         if (adapter.getCount() == 0) {
             emptyFuture.setVisibility(View.GONE);
         } else {
+            emptyFuture.setVisibility(View.VISIBLE);
             listViewFuture.setAdapter(adapter);
         }
     }
@@ -278,10 +318,11 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     }
 
-    public void initTabs(){
+    public void initTabs() {
 
-        TabHost tabs = (TabHost) findViewById(R.id.tabHost);
+        tabs = (TabHost) findViewById(R.id.tabHost);
         tabs.setup();
+
 
         TabHost.TabSpec activeTab = tabs.newTabSpec("Active");
         activeTab.setContent(R.id.tabLayout1);
@@ -298,16 +339,16 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         failedTab.setIndicator("Проваленные");
         tabs.addTab(failedTab);
 
-        final TabWidget tabWidget = tabs.getTabWidget();
+        TabWidget tabWidget = tabs.getTabWidget();
         for (int i = 0; i < tabWidget.getChildCount(); i++) {
             final ViewGroup tab = (ViewGroup) tabWidget.getChildAt(i);
-            final TextView tabTextView = (TextView) tab.getChildAt(1);
+            final TextView tabTextView = (TextView) tab.getChildAt(1).findViewById(android.R.id.title);
             tabTextView.setTextSize(11);
+            tabTextView.setTypeface(null, Typeface.NORMAL);
 
             tabs.getTabWidget().getChildAt(i).setBackgroundResource(R.drawable.tab_selected);
             tabs.getTabWidget().getChildAt(tabs.getCurrentTab()).setBackgroundResource(R.drawable.tab_unselected);
         }
-
 
     }
 }

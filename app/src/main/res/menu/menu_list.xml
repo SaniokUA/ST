@@ -1,19 +1,25 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".NotesListActivity">
+    tools:context=".MainActivity">
+
+    <item
+        android:id="@+id/action_marked"
+        android:icon="@drawable/ic_star"
+        android:title="Marked"
+        app:showAsAction="ifRoom"
+        />
 
     <item
         android:id="@+id/action_clear"
         android:orderInCategory="200"
         android:title="Clear all"
         app:actionViewClass="android.support.v7.widget.DeleteView"
-        app:showAsAction="collapseActionView"
-        />
-    <item android:id="@+id/action_exit"
-        android:title="Exit"
+        app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/action_exit"
         android:orderInCategory="300"
+        android:title="Exit"
         app:actionViewClass="android.support.v7.widget.ExitView"
-        app:showAsAction="never"
-        />
+        app:showAsAction="never" />
 </menu>

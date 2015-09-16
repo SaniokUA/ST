@@ -46,6 +46,8 @@ public class AccountActivity extends ActionBarActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+        toolbar.findViewById(R.id.spinner_nav).setVisibility(View.GONE);
+
 
         settings = getSharedPreferences("CallManager", Context.MODE_PRIVATE);
 

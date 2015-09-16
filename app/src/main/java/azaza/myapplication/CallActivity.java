@@ -173,7 +173,7 @@ public class CallActivity extends Activity {
         Note note = new Note(ID++, PhoneData.PHONE, PhoneData.CONTACT, comment.getText().toString(), timeMili, false, true);
         setAlarm(note);
         text = (comment.getText().toString());
-        db.addRec(this, 1,"All", PhoneData.PHONE, PhoneData.CONTACT, PhoneData.DATE, text, timeMili, 1, PhoneData.myTYPE, 1);
+        db.addRec(this, 1,"All", PhoneData.PHONE, PhoneData.CONTACT, PhoneData.DATE, text, timeMili, 0, PhoneData.myTYPE, 1);
 
         // Load from Settings
         if (LoadSettings.SYNC_CALENDAR == 1) {
