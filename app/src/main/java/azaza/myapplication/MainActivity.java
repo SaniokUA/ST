@@ -58,6 +58,8 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     public static Context ctx;
 
+    List<String> listCategory;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,20 +97,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
 
         selectCategory = (Spinner) toolbar.findViewById(R.id.spinner_nav);
-        List<String> listCategory = new ArrayList<>();
-        Cursor category = dataBaseProvider.fetchUniqueMembers();
-        if (!category.moveToFirst()) {
-        } else {
-            do {
-                listCategory.add(category.getString(category.getColumnIndex(DataBaseProviderModern.COLUMN_CATEGORY)));
-            } while (category.moveToNext());
-        }
-        ArrayAdapter < String > adapterCategory = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, listCategory);
-        adapterCategory.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        selectCategory.setAdapter(adapterCategory);
-
-
-
 
         drawerResult = MaterialMenu.createCommonDrawer(this, toolbar);
 
@@ -243,6 +231,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         listTomorrow();
         listFuture();
         listNoDate();
+        spinnerMenu();
     }
 
     @Override
@@ -350,5 +339,21 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
             tabs.getTabWidget().getChildAt(tabs.getCurrentTab()).setBackgroundResource(R.drawable.tab_unselected);
         }
 
+    }
+
+    public void spinnerMenu(){
+
+        listCategory = new ArrayList<>();
+        listCategory.add(0, "Все задачи");
+        Cursor category = dataBaseProvider.getMainListTaskAllCategory(this);
+        if (!category.moveToFirst()) {
+        } else {
+            do {
+                listCategory.add(category.getString(category.getColumnIndex(DataBaseProviderModern.COLUMN_CATEGORY)));
+            } while (category.moveToNext());
+        }
+        ArrayAdapter < String > adapterCategory = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, listCategory);
+        adapterCategory.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        selectCategory.setAdapter(adapterCategory);
     }
 }

@@ -251,9 +251,9 @@ public class DataBaseProviderModern extends ContentProvider {
     }
 
     public Cursor getMainListTaskAllCategory(Context ctx) {
-        String[] columns = new String[]{COLUMN_CATEGORY};
+        String[] columns = new String[]{"DISTINCT category"};
         //String selectionClause = "DISTINCT(" + COLUMN_CATEGORY + ")";
-        Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns, null, null, null);
+        Cursor cursor = ctx.getContentResolver().query(CONTACT_CONTENT_URI, columns, null, null, "category ASC");
         return cursor;
     }
 
