@@ -15,7 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -30,12 +29,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import azaza.myapplication.Adapter.CategoryItemAdapter;
 import azaza.myapplication.Adapter.ListItemAdapter;
-import azaza.myapplication.DataBase.DataBaseProviderModern;
+import azaza.myapplication.DataBase.ContractPlans;
+import azaza.myapplication.DataBase.PlansProvider;
 import azaza.myapplication.GlobalData.UserData;
 import azaza.myapplication.Libs.GetMiliDate;
 import azaza.myapplication.Libs.Google.LoadProfile;
 import azaza.myapplication.Menu.MaterialMenu;
+import azaza.myapplication.Model.CategoryItem;
 import azaza.myapplication.Model.ListItem;
 import azaza.myapplication.Settings.LoadSettings;
 
@@ -43,7 +45,7 @@ import azaza.myapplication.Settings.LoadSettings;
 public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     ListView listViewToday, listViewTomorrow, listViewFuture, listViewNoDate;
-    DataBaseProviderModern db = new DataBaseProviderModern();
+    //DataBaseProviderModern db = new DataBaseProviderModern();
     List<ListItem> data;
     Toolbar toolbar;
     ListItemAdapter adapter;
@@ -54,11 +56,12 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     static int mark = 0;
     Spinner selectCategory;
 
-    DataBaseProviderModern dataBaseProvider = new DataBaseProviderModern();
+    PlansProvider plansProvider = new PlansProvider();
 
     public static Context ctx;
 
-    List<String> listCategory;
+    List<CategoryItem> listCategory;
+    CategoryItemAdapter categoryItemAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +114,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         ad.setMessage("Do you want delete all items?"); // сообщение
         ad.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int arg1) {
-                db.delAllRec(MainActivity.this);
+                plansProvider.delAllRec(MainActivity.this);
                 getSupportLoaderManager().initLoader(0, null, MainActivity.this);
             }
         });
@@ -176,12 +179,12 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     public List<ListItem> getModel(long dayStart, long dayEnd) {
 
         List<ListItem> list = new ArrayList<ListItem>();
-        Cursor c = dataBaseProvider.getMainListTaskToDate(this, dayStart / 1000, dayEnd / 1000, mark);
+        Cursor c = plansProvider.getMainListTaskToDate(this, dayStart / 1000, dayEnd / 1000, mark);
         if (!c.moveToFirst()) {
         } else {
             do {
-                list.add(get(c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ID)), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ACTIVE)), c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_CATEGORY)),
-                        c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_TXT)), GetMiliDate.millisToDateConvert(c.getLong(c.getColumnIndex(DataBaseProviderModern.COLUMN_ALARM_DATE))), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_MARKED))));
+                list.add(get(c.getInt(c.getColumnIndex(ContractPlans.Task.COLUMN_ID)), c.getInt(c.getColumnIndex(ContractPlans.Task.COLUMN_ACTIVE)), c.getString(c.getColumnIndex(ContractPlans.Task.COLUMN_CATEGORY)),
+                        c.getString(c.getColumnIndex(ContractPlans.Task.COLUMN_TXT)), GetMiliDate.millisToDateConvert(c.getLong(c.getColumnIndex(ContractPlans.Task.COLUMN_ALARM_DATE))), c.getInt(c.getColumnIndex(ContractPlans.Task.COLUMN_MARKED))));
             } while (c.moveToNext());
         }
         c.close();
@@ -192,12 +195,12 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         List<ListItem> list = new ArrayList<ListItem>();
 
-        Cursor c = dataBaseProvider.getMainListTaskToFuture(this, dayStart / 1000, mark);
+        Cursor c = plansProvider.getMainListTaskToFuture(this, dayStart / 1000, mark);
         if (!c.moveToFirst()) {
         } else {
             do {
-                list.add(get(c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ID)), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_ACTIVE)), c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_CATEGORY)),
-                        c.getString(c.getColumnIndex(DataBaseProviderModern.COLUMN_TXT)), GetMiliDate.millisToDateConvert(c.getLong(c.getColumnIndex(DataBaseProviderModern.COLUMN_ALARM_DATE))), c.getInt(c.getColumnIndex(DataBaseProviderModern.COLUMN_MARKED))));
+                list.add(get(c.getInt(c.getColumnIndex(ContractPlans.Task.COLUMN_ID)), c.getInt(c.getColumnIndex(ContractPlans.Task.COLUMN_ACTIVE)), c.getString(c.getColumnIndex(ContractPlans.Task.COLUMN_CATEGORY)),
+                        c.getString(c.getColumnIndex(ContractPlans.Task.COLUMN_TXT)), GetMiliDate.millisToDateConvert(c.getLong(c.getColumnIndex(ContractPlans.Task.COLUMN_ALARM_DATE))), c.getInt(c.getColumnIndex(ContractPlans.Task.COLUMN_MARKED))));
             } while (c.moveToNext());
         }
         c.close();
@@ -221,7 +224,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        return new CursorLoader(this, DataBaseProviderModern.CONTACT_CONTENT_URI, null, null, null, null);
+        return new CursorLoader(this, ContractPlans.Task.CONTENT_URI, null, null, null, null);
 
     }
 
@@ -239,16 +242,16 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     }
 
     static class MyCursorLoader extends CursorLoader {
-        DataBaseProviderModern db;
+        PlansProvider db;
 
-        public MyCursorLoader(Context context, DataBaseProviderModern db) {
+        public MyCursorLoader(Context context, PlansProvider db) {
             super(context);
             this.db = db;
         }
 
         @Override
         public Cursor loadInBackground() {
-            Cursor cursor = db.getAllData(ctx);
+            Cursor cursor = db.getAllTasks(ctx);
             return cursor;
         }
     }
@@ -344,16 +347,20 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     public void spinnerMenu(){
 
         listCategory = new ArrayList<>();
-        listCategory.add(0, "Все задачи");
-        Cursor category = dataBaseProvider.getMainListTaskAllCategory(this);
+        listCategory.add(get("Все задачи"));
+        Cursor category = plansProvider.getMainListTaskAllCategory(this);
         if (!category.moveToFirst()) {
         } else {
             do {
-                listCategory.add(category.getString(category.getColumnIndex(DataBaseProviderModern.COLUMN_CATEGORY)));
+                listCategory.add(get(category.getString(category.getColumnIndex(ContractPlans.Category.CATEGORY_COLUMN_NAME))));
             } while (category.moveToNext());
         }
-        ArrayAdapter < String > adapterCategory = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, listCategory);
-        adapterCategory.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        selectCategory.setAdapter(adapterCategory);
+
+        categoryItemAdapter = new CategoryItemAdapter(this, listCategory);
+        selectCategory.setAdapter(categoryItemAdapter);
+    }
+
+    public CategoryItem get(String category) {
+        return new CategoryItem(category);
     }
 }
